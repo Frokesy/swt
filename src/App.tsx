@@ -1,10 +1,15 @@
-
+import { Canvas } from "@react-three/fiber"
+import { Suspense } from "react"
+import Three from "./components/Three"
+import "./App.css"
 function App() {
-
+  // bg-[#f1f1f1]
   return (
-    <div>
-      <h2 className="">Hello world, we are about to build something with vite, react, tailwind, react three fiber and gsap</h2>
-    </div>
+    <Canvas className="bg-[#000]" id="canvas" shadows>
+      <Suspense fallback={null}>
+        <Three />
+      </Suspense>
+    </Canvas>
   )
 }
 
