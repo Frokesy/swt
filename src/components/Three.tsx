@@ -18,13 +18,13 @@ const Three = () => {
       console.log(ballRef.current);
 
       const tl = gsap.timeline();
-      //x-axis motion
+
       tl.to(ballRef.current.position, {
         duration: 1,
         x: 0,
         ease: "power2.out",
       });
-      //y-axis motion
+
       tl.to(ballRef.current.position, {
         duration: 2,
         y: 0.5,
