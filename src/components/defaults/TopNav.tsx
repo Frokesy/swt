@@ -1,0 +1,26 @@
+const TopNav = () => {
+  const navItems = [
+    { id: 1, label: "Home", link: "/" },
+    { id: 2, label: "My Account", link: "/account" },
+    { id: 3, label: "Product Catalogue", link: "#" },
+    { id: 4, label: "Regular Sales", link: "#" },
+    { id: 5, label: "Preorder", link: "/preorder" },
+    { id: 6, label: "Delivery Information", link: "/delivery-information" },
+  ];
+  return (
+    <div className="w-[100%] bg-[#6eb356] lg:flex hidden text-[#fff] py-3 text-center">
+      <div className="lg:w-[60%] w-[90%] mx-auto flex items-center space-x-10">
+        {navItems.map((item) => (
+          <div
+            className="hover:text-[#ffed21] cursor-pointer transition-colors ease-in-out duration-300"
+            key={item.id}
+          >
+            <p>{item.label}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+export default TopNav;

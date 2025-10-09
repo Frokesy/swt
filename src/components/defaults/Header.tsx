@@ -13,14 +13,14 @@ const Header = () => {
           placeholder="Search for products..."
           className="outline-none border-none w-[90%] pr-4"
         />
-        <div className="bg-[#12ff91] p-3 cursor-pointer">
-          <Search />
+        <div className="bg-[#6eb356] p-3 w-[10%] flex items-center justify-center cursor-pointer">
+          <Search color="#fff" />
         </div>
       </div>
       <div className="flex space-x-6 items-center">
         <Search className="lg:hidden block" />
         <ShoppingBag />
-        <div className="bg-[#12ff91] p-2 rounded-full cursor-pointer">
+        <div className="bg-[#6eb356] p-2 rounded-full cursor-pointer">
           <UserIcon />
         </div>
       </div>
