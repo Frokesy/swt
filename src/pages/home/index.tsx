@@ -1,4 +1,5 @@
 import Ad from "../../components/defaults/Ad";
+import Footer from "../../components/defaults/Footer";
 import Header from "../../components/defaults/Header";
 import TopNav from "../../components/defaults/TopNav";
 import Products from "../../components/sections/Products";
@@ -17,6 +18,7 @@ const Home = () => {
         />
       </div>
       <Products />
+      <Footer />
     </div>
   );
 };
