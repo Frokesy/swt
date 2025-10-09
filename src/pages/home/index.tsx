@@ -1,6 +1,7 @@
 import Ad from "../../components/defaults/Ad";
 import Header from "../../components/defaults/Header";
 import TopNav from "../../components/defaults/TopNav";
+import Products from "../../components/sections/Products";
 
 const Home = () => {
   return (
@@ -8,7 +9,14 @@ const Home = () => {
       <Ad />
       <Header />
       <TopNav />
-      <h2>Hello world</h2>
+      <div className="lg:w-[60%] w-[90%] mx-auto my-10">
+        <img
+          src="/assets/ad.png"
+          alt="ad"
+          className="w-[100%] h-[200px] lg:h-[390px]"
+        />
+      </div>
+      <Products />
     </div>
   );
 };
