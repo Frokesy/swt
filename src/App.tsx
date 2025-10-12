@@ -4,6 +4,7 @@ import { AnimatePresence } from "framer-motion";
 import DeliveryInfo from "./pages/delivery-info";
 import RegularSales from "./pages/regular-sales";
 import ProductCatalogue from "./pages/product-catalog";
+import PreOrder from "./pages/preorder";
 
 const App = () => {
   const router = createBrowserRouter([
@@ -11,6 +12,7 @@ const App = () => {
     { path: "/delivery-info", element: <DeliveryInfo /> },
     { path: "/regular-sales", element: <RegularSales /> },
     { path: "/product-catalogue", element: <ProductCatalogue /> },
+    { path: "/preorder", element: <PreOrder /> },
   ]);
   return (
     <AnimatePresence mode="wait">
