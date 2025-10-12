@@ -6,6 +6,7 @@ import RegularSales from "./pages/regular-sales";
 import ProductCatalogue from "./pages/product-catalog";
 import PreOrder from "./pages/preorder";
 import MyAccount from "./pages/account";
+import Carts from "./pages/cart";
 
 const App = () => {
   const router = createBrowserRouter([
@@ -15,6 +16,7 @@ const App = () => {
     { path: "/regular-sales", element: <RegularSales /> },
     { path: "/product-catalogue", element: <ProductCatalogue /> },
     { path: "/preorder", element: <PreOrder /> },
+    { path: "/cart", element: <Carts /> },
   ]);
   return (
     <AnimatePresence mode="wait">

@@ -42,7 +42,7 @@ const MyAccount = () => {
 
   const handleLogout = () => {
     setLogoutModal(false);
-    alert("Logged out successfully!"); // later connect to redux/logout logic
+    alert("Logged out successfully!");
   };
 
   return (
