@@ -5,10 +5,12 @@ import DeliveryInfo from "./pages/delivery-info";
 import RegularSales from "./pages/regular-sales";
 import ProductCatalogue from "./pages/product-catalog";
 import PreOrder from "./pages/preorder";
+import MyAccount from "./pages/account";
 
 const App = () => {
   const router = createBrowserRouter([
     { path: "/", element: <Home /> },
+    { path: "/account", element: <MyAccount /> },
     { path: "/delivery-info", element: <DeliveryInfo /> },
     { path: "/regular-sales", element: <RegularSales /> },
     { path: "/product-catalogue", element: <ProductCatalogue /> },

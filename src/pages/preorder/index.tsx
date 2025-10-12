@@ -36,7 +36,6 @@ const PreOrder = () => {
     setToast(true);
     setTimeout(() => setToast(false), 2000);
 
-    // reset form
     setForm({
       productName: "",
       description: "",
@@ -79,7 +78,6 @@ const PreOrder = () => {
           product in advance. We’ll notify you when it becomes available.
         </motion.p>
 
-        {/* Form */}
         <motion.form
           onSubmit={handleSubmit}
           className="bg-white shadow-md rounded-lg p-6 space-y-5 border border-gray-100"
