@@ -87,7 +87,6 @@ const ProductCatalogue = () => {
           Product Catalogue
         </h2>
 
-        {/* Filter Buttons */}
         <div className="flex flex-wrap gap-3 mb-6">
           {productTypes.map((type) => (
             <button
@@ -107,7 +106,6 @@ const ProductCatalogue = () => {
           ))}
         </div>
 
-        {/* Header */}
         <div className="flex justify-between items-center">
           <p>
             Showing {startIndex + 1}–
@@ -127,7 +125,6 @@ const ProductCatalogue = () => {
           </div>
         </div>
 
-        {/* Product Grid */}
         <motion.div
           initial="hidden"
           animate="show"
@@ -156,7 +153,6 @@ const ProductCatalogue = () => {
                       exit={{ opacity: 0, scale: 0.9 }}
                       transition={{ duration: 0.3 }}
                     >
-                      {/* Like */}
                       <motion.div
                         className="bg-white p-2 rounded-full cursor-pointer shadow-sm"
                         whileHover={{ scale: 1.15 }}
@@ -219,7 +215,6 @@ const ProductCatalogue = () => {
           ))}
         </motion.div>
 
-        {/* Pagination */}
         <div className="flex justify-center mt-10">
           <Pagination
             current={currentPage}
@@ -230,7 +225,6 @@ const ProductCatalogue = () => {
           />
         </div>
 
-        {/* Toast */}
         <AnimatePresence>
           {toast && (
             <motion.div

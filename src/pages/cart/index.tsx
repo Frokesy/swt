@@ -64,7 +64,7 @@ const Carts = () => {
   return (
     <div>
       <Ad />
-      <Header cartCount={cartItems.length} />
+      <Header />
       <TopNav />
 
       <div className="w-[90%] lg:w-[60%] mx-auto my-10 text-[#333]">

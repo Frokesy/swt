@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Heart, Eye, CheckCircle } from "lucide-react";
 import { products, type ProductType } from "../data/products";
 import { get, set } from "idb-keyval";
+import { useNavigate } from "react-router-dom";
 
 const Products = () => {
   const [activeId, setActiveId] = useState<number | null>(null);
@@ -10,6 +11,7 @@ const Products = () => {
   const [loadingId, setLoadingId] = useState<number | null>(null);
   const [hoveredIcon, setHoveredIcon] = useState<string>("");
   const [toast, setToast] = useState<string | null>(null);
+  const navigate = useNavigate();
 
   const handleLike = (id: number) => {
     setLiked((prev) =>
@@ -100,7 +102,7 @@ const Products = () => {
                 <motion.div
                   key={product.id}
                   variants={itemVariants}
-                  className="relative border border-[#ddd] lg:min-h-[320px] min-h-[310px] rounded-lg p-3 flex flex-col space-y-3 bg-white overflow-hidden shadow-sm hover:shadow-md transition-shadow"
+                  className="relative border border-[#ddd] rounded-lg p-3 flex flex-col space-y-3 bg-white overflow-hidden shadow-sm hover:shadow-md transition-shadow"
                   onMouseEnter={() => setActiveId(product.id)}
                   onMouseLeave={() => setActiveId(null)}
                   onTouchStart={() => setActiveId(product.id)}
@@ -158,7 +160,7 @@ const Products = () => {
                             whileTap={{ scale: 0.9 }}
                             onMouseEnter={() => setHoveredIcon("eye")}
                             onMouseLeave={() => setHoveredIcon("")}
-                            onClick={() => alert(`Viewing ${product.name}`)}
+                            onClick={() => navigate(`/product/${product.id}`)}
                           >
                             <Eye
                               size={20}

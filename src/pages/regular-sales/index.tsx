@@ -7,6 +7,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Heart, Eye, CheckCircle } from "lucide-react";
 import { Pagination } from "antd";
 import { get, set } from "idb-keyval";
+import { useNavigate } from "react-router-dom";
 
 const RegularSales = () => {
   const [activeId, setActiveId] = useState<number | null>(null);
@@ -15,6 +16,7 @@ const RegularSales = () => {
   const [hoveredIcon, setHoveredIcon] = useState<string>("");
   const [toast, setToast] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState<number>(1);
+  const navigate = useNavigate();
 
   const itemsPerPage = 5;
   const totalPages = Math.ceil(products.length / itemsPerPage);
@@ -167,7 +169,7 @@ const RegularSales = () => {
                         whileTap={{ scale: 0.9 }}
                         onMouseEnter={() => setHoveredIcon("eye")}
                         onMouseLeave={() => setHoveredIcon("")}
-                        onClick={() => alert(`Viewing ${product.name}`)}
+                        onClick={() => navigate(`/product/${product.id}`)}
                       >
                         <Eye
                           size={20}
