@@ -5,6 +5,7 @@ export const products = [
     price: 2.99,
     image: "/assets/mix-meat.webp",
     category: "Recently Added",
+    type: "meat",
   },
   {
     id: 2,
@@ -12,6 +13,7 @@ export const products = [
     price: 5.99,
     image: "/assets/turkey.webp",
     category: "Recently Added",
+    type: "meat",
   },
   {
     id: 3,
@@ -19,6 +21,7 @@ export const products = [
     price: 1.99,
     image: "/assets/ugu.webp",
     category: "Recently Added",
+    type: "vegetable",
   },
   {
     id: 4,
@@ -26,6 +29,7 @@ export const products = [
     price: 5.99,
     image: "/assets/yam.webp",
     category: "Recently Added",
+    type: "tuber",
   },
   {
     id: 24,
@@ -33,6 +37,7 @@ export const products = [
     price: 5.99,
     image: "/assets/yam.webp",
     category: "Recently Added",
+    type: "tuber",
   },
   {
     id: 5,
@@ -40,6 +45,7 @@ export const products = [
     price: 2.99,
     image: "/assets/mix-meat.webp",
     category: "Most Popular",
+    type: "meat",
   },
   {
     id: 6,
@@ -47,6 +53,7 @@ export const products = [
     price: 5.99,
     image: "/assets/turkey.webp",
     category: "Most Popular",
+    type: "meat",
   },
   {
     id: 7,
@@ -54,6 +61,7 @@ export const products = [
     price: 1.99,
     image: "/assets/ugu.webp",
     category: "Most Popular",
+    type: "vegetable",
   },
   {
     id: 8,
@@ -61,6 +69,7 @@ export const products = [
     price: 5.99,
     image: "/assets/yam.webp",
     category: "Most Popular",
+    type: "tuber",
   },
   {
     id: 38,
@@ -68,5 +77,6 @@ export const products = [
     price: 5.99,
     image: "/assets/yam.webp",
     category: "Most Popular",
+    type: "tuber",
   },
 ];
