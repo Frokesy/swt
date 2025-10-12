@@ -51,9 +51,11 @@ const Header = ({ cartCount: cartItems = 0 }: HeaderProps) => {
             </AnimatePresence>
           </div>
         </NavLink>
-        <div className="bg-[#6eb356] p-2 rounded-full cursor-pointer">
-          <UserIcon color="#fff" />
-        </div>
+        <NavLink to="/account">
+          <div className="bg-[#6eb356] p-2 rounded-full cursor-pointer">
+            <UserIcon color="#fff" />
+          </div>
+        </NavLink>
       </div>
     </div>
   );

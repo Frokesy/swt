@@ -7,6 +7,7 @@ import ProductCatalogue from "./pages/product-catalog";
 import PreOrder from "./pages/preorder";
 import MyAccount from "./pages/account";
 import Carts from "./pages/cart";
+import ProductDetailsPage from "./pages/product-details";
 
 const App = () => {
   const router = createBrowserRouter([
@@ -15,6 +16,7 @@ const App = () => {
     { path: "/delivery-info", element: <DeliveryInfo /> },
     { path: "/regular-sales", element: <RegularSales /> },
     { path: "/product-catalogue", element: <ProductCatalogue /> },
+    { path: "/product/:id", element: <ProductDetailsPage /> },
     { path: "/preorder", element: <PreOrder /> },
     { path: "/cart", element: <Carts /> },
   ]);
