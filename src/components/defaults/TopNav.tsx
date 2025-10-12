@@ -1,3 +1,5 @@
+import { NavLink } from "react-router-dom";
+
 const TopNav = () => {
   const navItems = [
     { id: 1, label: "Home", link: "/" },
@@ -5,7 +7,7 @@ const TopNav = () => {
     { id: 3, label: "Product Catalogue", link: "#" },
     { id: 4, label: "Regular Sales", link: "#" },
     { id: 5, label: "Preorder", link: "/preorder" },
-    { id: 6, label: "Delivery Information", link: "/delivery-information" },
+    { id: 6, label: "Delivery Information", link: "/delivery-info" },
   ];
   return (
     <div className="w-[100%] bg-[#6eb356] lg:flex hidden text-[#fff] py-3 text-center">
@@ -15,7 +17,7 @@ const TopNav = () => {
             className="hover:text-[#ffed21] cursor-pointer transition-colors ease-in-out duration-300"
             key={item.id}
           >
-            <p>{item.label}</p>
+            <NavLink to={item.link}>{item.label}</NavLink>
           </div>
         ))}
       </div>
