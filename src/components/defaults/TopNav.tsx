@@ -5,7 +5,7 @@ const TopNav = () => {
     { id: 1, label: "Home", link: "/" },
     { id: 2, label: "My Account", link: "/account" },
     { id: 3, label: "Product Catalogue", link: "#" },
-    { id: 4, label: "Regular Sales", link: "#" },
+    { id: 4, label: "Regular Sales", link: "/regular-sales" },
     { id: 5, label: "Preorder", link: "/preorder" },
     { id: 6, label: "Delivery Information", link: "/delivery-info" },
   ];

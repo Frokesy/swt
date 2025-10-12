@@ -2,11 +2,13 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import Home from "./pages/home";
 import { AnimatePresence } from "framer-motion";
 import DeliveryInfo from "./pages/delivery-info";
+import RegularSales from "./pages/regular-sales";
 
 const App = () => {
   const router = createBrowserRouter([
     { path: "/", element: <Home /> },
     { path: "/delivery-info", element: <DeliveryInfo /> },
+    { path: "/regular-sales", element: <RegularSales /> },
   ]);
   return (
     <AnimatePresence mode="wait">
