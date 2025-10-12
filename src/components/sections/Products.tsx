@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Heart, Eye, CheckCircle } from "lucide-react";
-import { products } from "../data/products";
+import { products, type ProductType } from "../data/products";
+import { get, set } from "idb-keyval";
 
 const Products = () => {
   const [activeId, setActiveId] = useState<number | null>(null);
@@ -18,13 +19,39 @@ const Products = () => {
 
   const handleAddToCart = async (id: number, name: string) => {
     setLoadingId(id);
-    setTimeout(() => {
-      setLoadingId(null);
-      setToast(`${name} added to cart!`);
-      setTimeout(() => setToast(null), 1800);
-    }, 700);
-  };
 
+    try {
+      const existingCart = (await get("cartItems")) || [];
+
+      const productToAdd = products.find((p) => p.id === id);
+      if (!productToAdd) return;
+
+      const existingItem = existingCart.find(
+        (item: ProductType) => item.id === id
+      );
+
+      let updatedCart;
+      if (existingItem) {
+        updatedCart = existingCart.map((item: ProductType) =>
+          item.id === id
+            ? { ...item, quantity: (item.quantity ?? 0) + 1 }
+            : item
+        );
+      } else {
+        updatedCart = [...existingCart, { ...productToAdd, quantity: 1 }];
+      }
+
+      await set("cartItems", updatedCart);
+
+      setTimeout(() => {
+        setLoadingId(null);
+        setToast(`${name} added to cart!`);
+        setTimeout(() => setToast(null), 1800);
+      }, 700);
+    } catch (error) {
+      console.error("Failed to add to cart:", error);
+    }
+  };
   const categories = Array.from(new Set(products.map((p) => p.category)));
 
   const [visibleCount, setVisibleCount] = useState<Record<string, number>>(

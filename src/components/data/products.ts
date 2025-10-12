@@ -1,4 +1,14 @@
-export const products = [
+export interface ProductType {
+  id: number;
+  name: string;
+  price: number;
+  image: string;
+  category: string;
+  type: string;
+  quantity?: number;
+}
+
+export const products: ProductType[] = [
   {
     id: 1,
     name: "Mix Meat",
@@ -6,6 +16,7 @@ export const products = [
     image: "/assets/mix-meat.webp",
     category: "Recently Added",
     type: "meat",
+    quantity: 1,
   },
   {
     id: 2,
@@ -14,6 +25,7 @@ export const products = [
     image: "/assets/turkey.webp",
     category: "Recently Added",
     type: "meat",
+    quantity: 1,
   },
   {
     id: 3,
@@ -22,6 +34,7 @@ export const products = [
     image: "/assets/ugu.webp",
     category: "Recently Added",
     type: "vegetable",
+    quantity: 1,
   },
   {
     id: 4,
@@ -30,6 +43,7 @@ export const products = [
     image: "/assets/yam.webp",
     category: "Recently Added",
     type: "tuber",
+    quantity: 1,
   },
   {
     id: 24,
@@ -38,6 +52,7 @@ export const products = [
     image: "/assets/yam.webp",
     category: "Recently Added",
     type: "tuber",
+    quantity: 1,
   },
   {
     id: 5,
@@ -46,6 +61,7 @@ export const products = [
     image: "/assets/mix-meat.webp",
     category: "Most Popular",
     type: "meat",
+    quantity: 1,
   },
   {
     id: 6,
@@ -54,6 +70,7 @@ export const products = [
     image: "/assets/turkey.webp",
     category: "Most Popular",
     type: "meat",
+    quantity: 1,
   },
   {
     id: 7,
@@ -62,6 +79,7 @@ export const products = [
     image: "/assets/ugu.webp",
     category: "Most Popular",
     type: "vegetable",
+    quantity: 1,
   },
   {
     id: 8,
@@ -70,6 +88,7 @@ export const products = [
     image: "/assets/yam.webp",
     category: "Most Popular",
     type: "tuber",
+    quantity: 1,
   },
   {
     id: 38,
@@ -78,5 +97,6 @@ export const products = [
     image: "/assets/yam.webp",
     category: "Most Popular",
     type: "tuber",
+    quantity: 1,
   },
 ];
