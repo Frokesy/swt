@@ -26,7 +26,7 @@ const Header = () => {
         />
 
         <h2 className="text-green-700 lg:text-[44px] text-[30px] italic font-bold">
-          Divwis
+          Rehubot
         </h2>
 
         <div className="lg:flex hidden w-[60%] border border-[#ccc] pl-3 rounded-lg">

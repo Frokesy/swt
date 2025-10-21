@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Lock, Mail, LogIn } from "lucide-react";
+import { Mail, Lock, UserPlus, User } from "lucide-react";
 import Ad from "../../components/defaults/Ad";
 import Header from "../../components/defaults/Header";
 import TopNav from "../../components/defaults/TopNav";
@@ -11,26 +11,34 @@ const fadeUp = {
   show: { opacity: 1, y: 0 },
 };
 
-const Login = () => {
+const Signup = () => {
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
     setError(null);
 
+    if (password !== confirmPassword) {
+      setError("Passwords do not match!");
+      return;
+    }
+
+    setLoading(true);
+
     try {
-      // Placeholder – will connect to Appwrite later
-      console.log("Logging in with", { email, password });
+      // Placeholder — will connect to Appwrite next
+      console.log("Creating account for", { name, email, password });
       setTimeout(() => {
         setLoading(false);
-        alert("Logged in successfully!");
+        alert("Account created successfully!");
       }, 800);
     } catch (err) {
-      setError("Invalid credentials. Please try again.");
+      setError("Signup failed. Please try again.");
       setLoading(false);
       console.log(err);
     }
@@ -52,18 +60,33 @@ const Login = () => {
           variants={fadeUp}
           className="text-[26px] font-semibold text-green-700 mb-4 text-center"
         >
-          Welcome Back 👋
+          Create an Account 🌿
         </motion.h2>
 
         <motion.p variants={fadeUp} className="text-gray-600 mb-10 text-center">
-          Login to continue shopping and manage your orders.
+          Join our store and start shopping your favorites!
         </motion.p>
 
         <motion.form
-          onSubmit={handleLogin}
+          onSubmit={handleSignup}
           variants={fadeUp}
           className="bg-white shadow-md rounded-xl p-6 border border-gray-100"
         >
+          <div className="mb-5">
+            <label className="block text-sm font-medium mb-1">Full Name</label>
+            <div className="flex items-center border border-gray-300 rounded-lg px-3 py-2 focus-within:border-green-600">
+              <User size={18} className="text-gray-500 mr-2" />
+              <input
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="John Doe"
+                className="w-full outline-none"
+                required
+              />
+            </div>
+          </div>
+
           <div className="mb-5">
             <label className="block text-sm font-medium mb-1">Email</label>
             <div className="flex items-center border border-gray-300 rounded-lg px-3 py-2 focus-within:border-green-600">
@@ -94,6 +117,23 @@ const Login = () => {
             </div>
           </div>
 
+          <div className="mb-5">
+            <label className="block text-sm font-medium mb-1">
+              Confirm Password
+            </label>
+            <div className="flex items-center border border-gray-300 rounded-lg px-3 py-2 focus-within:border-green-600">
+              <Lock size={18} className="text-gray-500 mr-2" />
+              <input
+                type="password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                placeholder="••••••••"
+                className="w-full outline-none"
+                required
+              />
+            </div>
+          </div>
+
           {error && (
             <p className="text-red-500 text-sm mb-3 text-center">{error}</p>
           )}
@@ -104,22 +144,22 @@ const Login = () => {
             className="w-full flex items-center justify-center gap-2 bg-green-700 text-white py-2.5 rounded-lg hover:bg-green-800 transition font-medium"
           >
             {loading ? (
-              <span className="animate-pulse">Loading...</span>
+              <span className="animate-pulse">Creating...</span>
             ) : (
               <>
-                <LogIn size={16} />
-                Login
+                <UserPlus size={16} />
+                Create Account
               </>
             )}
           </button>
 
           <p className="text-center text-sm text-gray-600 mt-4">
-            Don’t have an account?{" "}
+            Already have an account?{" "}
             <NavLink
-              to="/auth/signup"
+              to="/auth/login"
               className="text-green-700 font-medium hover:underline"
             >
-              Sign up
+              Log in
             </NavLink>
           </p>
         </motion.form>
@@ -128,4 +168,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default Signup;
