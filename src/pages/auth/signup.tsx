@@ -1,10 +1,12 @@
 import { useState } from "react";
-import { motion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import { Mail, Lock, UserPlus, User } from "lucide-react";
 import Ad from "../../components/defaults/Ad";
 import Header from "../../components/defaults/Header";
 import TopNav from "../../components/defaults/TopNav";
 import { NavLink } from "react-router-dom";
+import { account } from "../../lib/appwrite";
+import Toast from "../../components/defaults/Toast";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 20 },
@@ -18,6 +20,7 @@ const Signup = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [toast, setToast] = useState<string | null>(null);
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -25,20 +28,27 @@ const Signup = () => {
 
     if (password !== confirmPassword) {
       setError("Passwords do not match!");
+      setTimeout(() => setError(null), 1800);
       return;
     }
 
     setLoading(true);
 
     try {
-      // Placeholder — will connect to Appwrite next
-      console.log("Creating account for", { name, email, password });
+      await account.create("unique()", email, password, name);
+
+      await account.createEmailPasswordSession(email, password);
       setTimeout(() => {
         setLoading(false);
-        alert("Account created successfully!");
+        setToast(`Signup successful!`);
+        setTimeout(() => {
+          window.location.href = "/";
+          setToast(null);
+        }, 1800);
       }, 800);
     } catch (err) {
       setError("Signup failed. Please try again.");
+      setTimeout(() => setError(null), 1800);
       setLoading(false);
       console.log(err);
     }
@@ -164,6 +174,8 @@ const Signup = () => {
           </p>
         </motion.form>
       </motion.div>
+
+      <AnimatePresence>{toast && <Toast toast={toast} />}</AnimatePresence>
     </div>
   );
 };
