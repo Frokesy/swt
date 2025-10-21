@@ -71,7 +71,6 @@ const MyAccount = () => {
           place.
         </motion.p>
 
-        {/* Tabs */}
         <motion.div
           variants={fadeUp}
           className="flex flex-wrap gap-3 mb-8 border-b border-gray-200 pb-3"
@@ -92,7 +91,6 @@ const MyAccount = () => {
           ))}
         </motion.div>
 
-        {/* Active tab content */}
         <AnimatePresence mode="wait">
           <motion.div
             key={activeTab}
@@ -109,7 +107,6 @@ const MyAccount = () => {
                   Profile Information
                 </h3>
 
-                {/* Profile image */}
                 <div className="flex flex-col sm:flex-row items-center gap-6 mb-8">
                   <div className="relative">
                     <div className="w-28 h-28 rounded-full overflow-hidden border-4 border-green-600 bg-gray-100">
@@ -140,7 +137,6 @@ const MyAccount = () => {
                   </div>
                 </div>
 
-                {/* Profile form */}
                 <div className="grid sm:grid-cols-2 gap-5">
                   <div>
                     <label className="block text-sm font-medium mb-1">
@@ -244,7 +240,6 @@ const MyAccount = () => {
           </motion.div>
         </AnimatePresence>
 
-        {/* Logout modal */}
         <AnimatePresence>
           {logoutModal && (
             <motion.div

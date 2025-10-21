@@ -8,6 +8,7 @@ import PreOrder from "./pages/preorder";
 import MyAccount from "./pages/account";
 import Carts from "./pages/cart";
 import ProductDetailsPage from "./pages/product-details";
+import Login from "./pages/auth/login";
 
 const App = () => {
   const router = createBrowserRouter([
@@ -19,6 +20,7 @@ const App = () => {
     { path: "/product/:id", element: <ProductDetailsPage /> },
     { path: "/preorder", element: <PreOrder /> },
     { path: "/cart", element: <Carts /> },
+    { path: "/auth/login", element: <Login /> },
   ]);
   return (
     <AnimatePresence mode="wait">
