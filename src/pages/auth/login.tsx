@@ -1,10 +1,13 @@
 import { useState } from "react";
-import { motion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import { Lock, Mail, LogIn } from "lucide-react";
 import Ad from "../../components/defaults/Ad";
 import Header from "../../components/defaults/Header";
 import TopNav from "../../components/defaults/TopNav";
 import { NavLink } from "react-router-dom";
+import { account } from "../../lib/appwrite";
+import { useLocation } from "react-router-dom";
+import Toast from "../../components/defaults/Toast";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 20 },
@@ -16,6 +19,9 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [toast, setToast] = useState<string | null>(null);
+  const location = useLocation();
+  const from = location.state?.from || "/";
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -23,14 +29,19 @@ const Login = () => {
     setError(null);
 
     try {
-      // Placeholder – will connect to Appwrite later
-      console.log("Logging in with", { email, password });
+      await account.createEmailPasswordSession(email, password);
+
       setTimeout(() => {
         setLoading(false);
-        alert("Logged in successfully!");
+        setToast(`Logged in successfully!`);
+        setTimeout(() => {
+          window.location.href = from;
+          setToast(null);
+        }, 1800);
       }, 800);
     } catch (err) {
       setError("Invalid credentials. Please try again.");
+      setTimeout(() => setError(null), 1800);
       setLoading(false);
       console.log(err);
     }
@@ -124,6 +135,7 @@ const Login = () => {
           </p>
         </motion.form>
       </motion.div>
+      <AnimatePresence>{toast && <Toast toast={toast} />}</AnimatePresence>
     </div>
   );
 };
