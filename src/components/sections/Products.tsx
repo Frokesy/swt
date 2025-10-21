@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Heart, Eye, CheckCircle } from "lucide-react";
+import { Heart, Eye } from "lucide-react";
 import { products, type ProductType } from "../data/products";
 import { get, set } from "idb-keyval";
 import { useNavigate } from "react-router-dom";
 import { databases } from "../../lib/appwrite";
+import Toast from "../defaults/Toast";
 
 const DATABASE_ID = import.meta.env.VITE_DB_ID;
 const COLLECTION_ID = "products";
@@ -246,21 +247,7 @@ const Products = () => {
         );
       })}
 
-      <AnimatePresence>
-        {toast && (
-          <motion.div
-            key="toast"
-            initial={{ opacity: 0, y: 60 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 60 }}
-            transition={{ duration: 0.4, ease: "easeOut" }}
-            className="fixed bottom-6 left-1/2 -translate-x-1/2 bg-[#6eb356] text-white px-5 py-3 rounded-full shadow-lg flex items-center space-x-2 z-50"
-          >
-            <CheckCircle size={18} className="text-white" />
-            <span className="font-medium text-sm sm:text-base">{toast}</span>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      <AnimatePresence>{toast && <Toast toast={toast} />}</AnimatePresence>
     </div>
   );
 };
