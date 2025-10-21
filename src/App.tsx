@@ -10,17 +10,42 @@ import Carts from "./pages/cart";
 import ProductDetailsPage from "./pages/product-details";
 import Login from "./pages/auth/login";
 import Signup from "./pages/auth/signup";
+import ProtectedRoute from "./components/defaults/ProtectedRoute";
 
 const App = () => {
   const router = createBrowserRouter([
     { path: "/", element: <Home /> },
-    { path: "/account", element: <MyAccount /> },
+    {
+      path: "/account",
+      element: (
+        <ProtectedRoute>
+          <MyAccount />
+        </ProtectedRoute>
+      ),
+    },
     { path: "/delivery-info", element: <DeliveryInfo /> },
     { path: "/regular-sales", element: <RegularSales /> },
     { path: "/product-catalogue", element: <ProductCatalogue /> },
-    { path: "/product/:id", element: <ProductDetailsPage /> },
-    { path: "/preorder", element: <PreOrder /> },
-    { path: "/cart", element: <Carts /> },
+    {
+      path: "/product/:id",
+      element: <ProductDetailsPage />,
+    },
+    {
+      path: "/preorder",
+      element: (
+        <ProtectedRoute>
+          <PreOrder />
+        </ProtectedRoute>
+      ),
+    },
+    {
+      path: "/cart",
+      element: (
+        <ProtectedRoute>
+          <Carts />
+        </ProtectedRoute>
+      ),
+    },
     { path: "/auth/login", element: <Login /> },
     { path: "/auth/signup", element: <Signup /> },
   ]);
