@@ -13,6 +13,7 @@ import {
 import Ad from "../../components/defaults/Ad";
 import Header from "../../components/defaults/Header";
 import TopNav from "../../components/defaults/TopNav";
+import { account } from "../../lib/appwrite";
 
 const tabs = [
   { key: "profile", label: "Profile Info", icon: <User size={18} /> },
@@ -40,9 +41,14 @@ const MyAccount = () => {
     }
   };
 
-  const handleLogout = () => {
-    setLogoutModal(false);
-    alert("Logged out successfully!");
+  const handleLogout = async () => {
+    try {
+      await account.deleteSession("current");
+      setLogoutModal(false);
+      window.location.href = "/auth/login";
+    } catch (err) {
+      console.error("Logout failed:", err);
+    }
   };
 
   return (
