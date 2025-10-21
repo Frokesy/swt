@@ -12,6 +12,7 @@
   "dependencies": {
     "@tailwindcss/vite": "^4.1.14",
     "antd": "^5.27.4",
+    "appwrite": "^21.2.1",
     "framer-motion": "^12.23.22",
     "idb-keyval": "^6.2.2",
     "lucide-react": "^0.545.0",

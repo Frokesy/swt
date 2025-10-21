@@ -1,9 +1,13 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Heart, Eye, CheckCircle } from "lucide-react";
 import { products, type ProductType } from "../data/products";
 import { get, set } from "idb-keyval";
 import { useNavigate } from "react-router-dom";
+import { databases } from "../../lib/appwrite";
+
+const DATABASE_ID = import.meta.env.VITE_DB_ID;
+const COLLECTION_ID = "products";
 
 const Products = () => {
   const [activeId, setActiveId] = useState<number | null>(null);
@@ -76,6 +80,15 @@ const Products = () => {
     hidden: { opacity: 0, y: 30 },
     show: { opacity: 1, y: 0 },
   };
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      const res = await databases.listDocuments(DATABASE_ID, COLLECTION_ID);
+      console.log(res);
+    };
+
+    fetchProducts();
+  }, []);
 
   return (
     <div className="lg:w-[60%] w-[90%] mx-auto my-10 space-y-14">
