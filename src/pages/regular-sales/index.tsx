@@ -1,15 +1,22 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import Ad from "../../components/defaults/Ad";
 import Header from "../../components/defaults/Header";
 import TopNav from "../../components/defaults/TopNav";
-import { products, type ProductType } from "../../components/data/products";
-import { useState } from "react";
+import { type ProductType } from "../../components/data/products";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Heart, Eye, CheckCircle } from "lucide-react";
 import { Pagination } from "antd";
 import { get, set } from "idb-keyval";
 import { useNavigate } from "react-router-dom";
+import { databases } from "../../lib/appwrite";
+import { Query } from "appwrite";
+
+const DATABASE_ID = import.meta.env.VITE_DB_ID;
+const COLLECTION_ID = "products";
 
 const RegularSales = () => {
+  const [products, setProducts] = useState<ProductType[]>([]);
   const [activeId, setActiveId] = useState<number | null>(null);
   const [liked, setLiked] = useState<number[]>([]);
   const [loadingId, setLoadingId] = useState<number | null>(null);
@@ -19,32 +26,98 @@ const RegularSales = () => {
   const navigate = useNavigate();
 
   const itemsPerPage = 5;
+
+  useEffect(() => {
+    const loadLikedItems = async () => {
+      try {
+        const storedLikes: ProductType[] = (await get("likedItems")) || [];
+        if (storedLikes.length > 0) {
+          setLiked(storedLikes.map((item) => item.id));
+        }
+      } catch (error) {
+        console.error("Failed to load liked items:", error);
+      }
+    };
+
+    loadLikedItems();
+  }, []);
+
+  useEffect(() => {
+    const fetchTopProducts = async () => {
+      try {
+        const res = await databases.listDocuments(DATABASE_ID, COLLECTION_ID, [
+          (Query.orderDesc("salesCount"), Query.limit(12)),
+        ]);
+
+        const mapped = res.documents.map((doc: any, index: number) => ({
+          id: index + 1,
+          name: doc.name,
+          price: doc.price,
+          image: doc.image,
+          category: doc.category,
+          type: doc.type,
+          desc: doc.desc,
+          quantity: doc.quantity ?? 0,
+          inStock: doc.inStock ?? true,
+          images: doc.images ?? [],
+          salesCount: doc.salesCount ?? 0,
+        }));
+
+        setProducts(mapped);
+      } catch (error) {
+        console.error("Error fetching products:", error);
+      }
+    };
+
+    fetchTopProducts();
+  }, []);
+
   const totalPages = Math.ceil(products.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const currentProducts = products.slice(startIndex, startIndex + itemsPerPage);
 
   console.log(totalPages);
 
-  const handleLike = (id: number) => {
-    setLiked((prev) =>
-      prev.includes(id) ? prev.filter((pid) => pid !== id) : [...prev, id]
-    );
+  const handleLike = async (id: number, name?: string) => {
+    try {
+      const existingLikes: ProductType[] = (await get("likedItems")) || [];
+      const productToToggle = products.find((p) => p.id === id);
+      if (!productToToggle) return;
+
+      const isLiked = existingLikes.some((item) => item.id === id);
+      let updatedLikes;
+
+      if (isLiked) {
+        updatedLikes = existingLikes.filter((item) => item.id !== id);
+        setToast(`${name ?? productToToggle.name} removed from favorites`);
+      } else {
+        updatedLikes = [...existingLikes, productToToggle];
+        setToast(`${name ?? productToToggle.name} added to favorites`);
+      }
+
+      await set("likedItems", updatedLikes);
+
+      setLiked(updatedLikes.map((item) => item.id));
+
+      setTimeout(() => setToast(null), 1800);
+    } catch (error) {
+      console.error("Failed to update liked items:", error);
+    }
   };
 
   const handleAddToCart = async (id: number, name: string) => {
     setLoadingId(id);
 
     try {
-      const existingCart = (await get("cartItems")) || [];
-
+      const existingCart: ProductType[] = (await get("cartItems")) || [];
       const productToAdd = products.find((p) => p.id === id);
       if (!productToAdd) return;
 
-      const existingItem = existingCart.find(
-        (item: ProductType) => item.id === id
-      );
+      const existingItem = existingCart.find((item) => item.id === id);
 
       let updatedCart;
       if (existingItem) {
-        updatedCart = existingCart.map((item: ProductType) =>
+        updatedCart = existingCart.map((item) =>
           item.id === id
             ? { ...item, quantity: (item.quantity ?? 0) + 1 }
             : item
@@ -64,8 +137,6 @@ const RegularSales = () => {
       console.error("Failed to add to cart:", error);
     }
   };
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const currentProducts = products.slice(startIndex, startIndex + itemsPerPage);
 
   const containerVariants = {
     hidden: {},
@@ -84,7 +155,7 @@ const RegularSales = () => {
       <TopNav />
       <div className="w-[90%] mx-auto lg:w-[60%]">
         <h2 className="text-[24px] font-semibold my-10 text-green-700">
-          Sales
+          Best Sellers
         </h2>
 
         <div className="flex justify-between items-center">
@@ -141,7 +212,7 @@ const RegularSales = () => {
                         whileTap={{ scale: 0.9 }}
                         onMouseEnter={() => setHoveredIcon("heart")}
                         onMouseLeave={() => setHoveredIcon("")}
-                        onClick={() => handleLike(product.id)}
+                        onClick={() => handleLike(product.id, product.name)}
                       >
                         <motion.div
                           initial={false}
@@ -190,6 +261,10 @@ const RegularSales = () => {
               </h3>
               <p className="text-green-700 font-bold text-sm sm:text-base">
                 ${product.price}
+              </p>
+
+              <p className="text-xs text-gray-500">
+                Bought {product.salesCount} times recently
               </p>
 
               <AnimatePresence>

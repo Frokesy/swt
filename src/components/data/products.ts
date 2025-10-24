@@ -10,6 +10,7 @@ export interface ProductType {
   images?: string[];
   liked?: boolean;
   inStock?: boolean;
+  salesCount?: number;
 }
 
 export const products: ProductType[] = [
@@ -17,7 +18,8 @@ export const products: ProductType[] = [
     id: 1,
     name: "Mix Meat",
     price: 2.99,
-    image: "/assets/mix-meat.webp",
+    image:
+      "https://res.cloudinary.com/di07k6tjo/image/upload/v1761055813/mix-meat_kefnxl.webp",
     category: "Recently Added",
     type: "meat",
     quantity: 1,
@@ -27,7 +29,8 @@ export const products: ProductType[] = [
     id: 2,
     name: "Turkey",
     price: 5.99,
-    image: "/assets/turkey.webp",
+    image:
+      "https://res.cloudinary.com/di07k6tjo/image/upload/v1761055812/turkey_p5ntox.webp",
     category: "Recently Added",
     type: "meat",
     quantity: 1,
@@ -37,7 +40,8 @@ export const products: ProductType[] = [
     id: 3,
     name: "Fresh Ugu Branch",
     price: 1.99,
-    image: "/assets/ugu.webp",
+    image:
+      "https://res.cloudinary.com/di07k6tjo/image/upload/v1761055813/ugu_ueeex2.webp",
     category: "Recently Added",
     type: "vegetable",
     quantity: 1,
@@ -47,7 +51,8 @@ export const products: ProductType[] = [
     id: 4,
     name: "Yam Tuber",
     price: 5.99,
-    image: "/assets/yam.webp",
+    image:
+      "https://res.cloudinary.com/di07k6tjo/image/upload/v1761055812/yam_omvvl4.webp",
     category: "Recently Added",
     type: "tuber",
     quantity: 1,
@@ -57,7 +62,8 @@ export const products: ProductType[] = [
     id: 24,
     name: "Yam Tuber",
     price: 5.99,
-    image: "/assets/yam.webp",
+    image:
+      "https://res.cloudinary.com/di07k6tjo/image/upload/v1761055812/yam_omvvl4.webp",
     category: "Recently Added",
     type: "tuber",
     quantity: 1,
@@ -67,7 +73,8 @@ export const products: ProductType[] = [
     id: 5,
     name: "Mix Meat",
     price: 2.99,
-    image: "/assets/mix-meat.webp",
+    image:
+      "https://res.cloudinary.com/di07k6tjo/image/upload/v1761055813/mix-meat_kefnxl.webp",
     category: "Most Popular",
     type: "meat",
     quantity: 1,
@@ -77,7 +84,8 @@ export const products: ProductType[] = [
     id: 6,
     name: "Turkey",
     price: 5.99,
-    image: "/assets/turkey.webp",
+    image:
+      "https://res.cloudinary.com/di07k6tjo/image/upload/v1761055812/turkey_p5ntox.webp",
     category: "Most Popular",
     type: "meat",
     quantity: 1,
@@ -87,7 +95,8 @@ export const products: ProductType[] = [
     id: 7,
     name: "Fresh Ugu Branch",
     price: 1.99,
-    image: "/assets/ugu.webp",
+    image:
+      "https://res.cloudinary.com/di07k6tjo/image/upload/v1761055813/ugu_ueeex2.webp",
     category: "Most Popular",
     type: "vegetable",
     quantity: 1,
@@ -97,7 +106,8 @@ export const products: ProductType[] = [
     id: 8,
     name: "Yam Tuber",
     price: 5.99,
-    image: "/assets/yam.webp",
+    image:
+      "https://res.cloudinary.com/di07k6tjo/image/upload/v1761055812/yam_omvvl4.webp",
     category: "Most Popular",
     type: "tuber",
     quantity: 1,
@@ -107,7 +117,8 @@ export const products: ProductType[] = [
     id: 38,
     name: "Yam Tuber",
     price: 5.99,
-    image: "/assets/yam.webp",
+    image:
+      "https://res.cloudinary.com/di07k6tjo/image/upload/v1761055812/yam_omvvl4.webp",
     category: "Most Popular",
     type: "tuber",
     quantity: 1,

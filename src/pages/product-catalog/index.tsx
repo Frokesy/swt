@@ -1,18 +1,22 @@
 import Ad from "../../components/defaults/Ad";
 import Header from "../../components/defaults/Header";
 import TopNav from "../../components/defaults/TopNav";
-import { products, type ProductType } from "../../components/data/products";
-import { useState } from "react";
+import { type ProductType } from "../../components/data/products";
+import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Heart, Eye, CheckCircle } from "lucide-react";
 import { Pagination } from "antd";
 import { set, get } from "idb-keyval";
 import { useNavigate } from "react-router-dom";
+import { databases } from "../../lib/appwrite";
+const DATABASE_ID = import.meta.env.VITE_DB_ID;
+const COLLECTION_ID = "products";
 
 const ProductCatalogue = () => {
   const [activeId, setActiveId] = useState<number | null>(null);
   const [liked, setLiked] = useState<number[]>([]);
   const [loadingId, setLoadingId] = useState<number | null>(null);
+  const [products, setProducts] = useState<ProductType[]>([]);
   const [toast, setToast] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [selectedType, setSelectedType] = useState<string>("All");
@@ -41,10 +45,33 @@ const ProductCatalogue = () => {
   );
 
   console.log(totalPages);
-  const handleLike = (id: number) => {
-    setLiked((prev) =>
-      prev.includes(id) ? prev.filter((pid) => pid !== id) : [...prev, id]
-    );
+  const handleLike = async (id: number, name?: string) => {
+    try {
+      const existingLikes = (await get("likedItems")) || [];
+      const productToToggle = products.find((p) => p.id === id);
+      if (!productToToggle) return;
+
+      const isLiked = existingLikes.some((item: ProductType) => item.id === id);
+      let updatedLikes;
+
+      if (isLiked) {
+        updatedLikes = existingLikes.filter(
+          (item: ProductType) => item.id !== id
+        );
+        setToast(`${name ?? productToToggle.name} removed from favorites`);
+      } else {
+        updatedLikes = [...existingLikes, productToToggle];
+        setToast(`${name ?? productToToggle.name} added to favorites`);
+      }
+
+      await set("likedItems", updatedLikes);
+
+      setLiked(updatedLikes.map((item: ProductType) => item.id));
+
+      setTimeout(() => setToast(null), 1800);
+    } catch (error) {
+      console.error("Failed to update liked items:", error);
+    }
   };
 
   const handleAddToCart = async (id: number, name: string) => {
@@ -75,6 +102,45 @@ const ProductCatalogue = () => {
       console.error("Failed to add to cart:", error);
     }
   };
+
+  useEffect(() => {
+    const loadLikedItems = async () => {
+      try {
+        const storedLikes: ProductType[] = (await get("likedItems")) || [];
+        if (storedLikes.length > 0) {
+          setLiked(storedLikes.map((item) => item.id));
+        }
+      } catch (error) {
+        console.error("Failed to load liked items:", error);
+      }
+    };
+
+    loadLikedItems();
+  }, []);
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      const res = await databases.listDocuments(DATABASE_ID, COLLECTION_ID);
+
+      const mapped = res.documents.map((doc, index) => ({
+        id: index + 1,
+        name: doc.name,
+        price: doc.price,
+        image: doc.image,
+        category: doc.category,
+        type: doc.type,
+        quantity: doc.quantity,
+        desc: doc.desc,
+        images: doc.images,
+        liked: doc.liked,
+        inStock: doc.inStock,
+      }));
+
+      setProducts(mapped);
+    };
+
+    fetchProducts();
+  }, []);
 
   return (
     <div>
@@ -157,7 +223,7 @@ const ProductCatalogue = () => {
                         className="bg-white p-2 rounded-full cursor-pointer shadow-sm"
                         whileHover={{ scale: 1.15 }}
                         whileTap={{ scale: 0.9 }}
-                        onClick={() => handleLike(product.id)}
+                        onClick={() => handleLike(product.id, product.name)}
                       >
                         <Heart
                           size={20}
