@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Menu, Search, ShoppingBag, UserIcon, X } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
-import { useCartStore } from "../../hooks/useCartStore";
+import { useCart } from "../../hooks/useCart";
 
 const navItems = [
   { id: 1, label: "Home", link: "/" },
@@ -14,7 +14,7 @@ const navItems = [
 ];
 
 const Header = () => {
-  const { cartCount } = useCartStore();
+  const { cartCount } = useCart();
   const [drawerOpen, setDrawerOpen] = useState(false);
 
   return (

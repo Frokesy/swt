@@ -1,66 +1,45 @@
-import { useEffect, useState } from "react";
-import { get, set } from "idb-keyval";
-import { Trash2, Plus, Minus, CheckCircle } from "lucide-react";
+import { useState } from "react";
+import { Trash2, Plus, Minus, CheckCircle, XCircle } from "lucide-react";
 import Ad from "../../components/defaults/Ad";
 import Header from "../../components/defaults/Header";
 import TopNav from "../../components/defaults/TopNav";
 import { motion, AnimatePresence } from "framer-motion";
 import type { ProductType } from "../../components/data/products";
+import { useCart } from "../../hooks/useCart";
 
 const Carts = () => {
-  const [cartItems, setCartItems] = useState<ProductType[]>([]);
+  const {
+    cartItems,
+    increment,
+    decrement,
+    removeFromCart,
+    clearCart,
+    totalPrice,
+  } = useCart();
+
   const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [showRemoveModal, setShowRemoveModal] = useState(false);
+  const [itemToRemove, setItemToRemove] = useState<ProductType | null>(null);
   const [toast, setToast] = useState(false);
 
-  useEffect(() => {
-    const loadCart = async () => {
-      const items = (await get("cartItems")) || [];
-      setCartItems(items);
-    };
-    loadCart();
-  }, []);
-
-  const updateCart = async (newCart: ProductType[]) => {
-    setCartItems(newCart);
-    await set("cartItems", newCart);
+  const confirmRemove = (item: ProductType) => {
+    setItemToRemove(item);
+    setShowRemoveModal(true);
   };
 
-  const handleIncrement = (id: number) => {
-    const updated = cartItems.map((item) =>
-      item.id === id ? { ...item, quantity: (item.quantity ?? 1) + 1 } : item
-    );
-    updateCart(updated);
+  const handleRemove = () => {
+    if (!itemToRemove) return;
+    removeFromCart(itemToRemove.id);
+    setShowRemoveModal(false);
+    setItemToRemove(null);
   };
-
-  const handleDecrement = (id: number) => {
-    const updated = cartItems
-      .map((item) =>
-        item.id === id
-          ? { ...item, quantity: Math.max(1, (item.quantity ?? 1) - 1) }
-          : item
-      )
-      .filter((item) => (item.quantity ?? 1) > 0);
-    updateCart(updated);
-  };
-
-  const handleRemove = (id: number) => {
-    const updated = cartItems.filter((item) => item.id !== id);
-    updateCart(updated);
-  };
-
-  const totalPrice = cartItems.reduce(
-    (acc, item) => acc + item.price * (item.quantity ?? 1),
-    0
-  );
 
   const handleCheckout = async () => {
-    await set("cartItems", []);
-    setCartItems([]);
+    clearCart();
     setShowConfirmModal(false);
     setToast(true);
     setTimeout(() => setToast(false), 2000);
   };
-
   return (
     <div>
       <Ad />
@@ -107,7 +86,7 @@ const Carts = () => {
                     <div className="flex items-center gap-6 w-full sm:w-auto justify-between sm:justify-end">
                       <div className="flex items-center space-x-3 bg-gray-50 rounded-full px-3 py-1.5">
                         <button
-                          onClick={() => handleDecrement(item.id)}
+                          onClick={() => decrement(item.id)}
                           className="w-7 h-7 flex items-center justify-center rounded-full border border-gray-300 hover:bg-gray-100 transition"
                         >
                           <Minus size={14} />
@@ -116,7 +95,7 @@ const Carts = () => {
                           {item.quantity}
                         </span>
                         <button
-                          onClick={() => handleIncrement(item.id)}
+                          onClick={() => increment(item.id)}
                           className="w-7 h-7 flex items-center justify-center rounded-full border border-gray-300 hover:bg-gray-100 transition"
                         >
                           <Plus size={14} />
@@ -124,7 +103,7 @@ const Carts = () => {
                       </div>
 
                       <button
-                        onClick={() => handleRemove(item.id)}
+                        onClick={() => confirmRemove(item)}
                         className="text-red-500 hover:text-red-600 transition"
                         title="Remove"
                       >
@@ -158,6 +137,49 @@ const Carts = () => {
         )}
       </div>
 
+      <AnimatePresence>
+        {showRemoveModal && itemToRemove && (
+          <motion.div
+            className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="bg-white rounded-2xl shadow-xl w-full max-w-md p-6 text-center"
+            >
+              <XCircle className="mx-auto mb-3 text-red-600 w-10 h-10" />
+              <h2 className="text-xl font-semibold text-gray-800 mb-2">
+                Remove Item
+              </h2>
+              <p className="text-gray-600 mb-4">
+                Are you sure you want to remove{" "}
+                <span className="font-semibold">{itemToRemove.name}</span> from
+                your cart?
+              </p>
+              <div className="flex justify-center gap-3 mt-6">
+                <button
+                  onClick={() => setShowRemoveModal(false)}
+                  className="px-4 py-2 rounded-lg border border-gray-300 hover:bg-gray-100 transition-all"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleRemove}
+                  className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-all"
+                >
+                  Remove
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* ✅ Checkout Confirm Modal */}
       <AnimatePresence>
         {showConfirmModal && (
           <motion.div

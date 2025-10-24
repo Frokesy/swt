@@ -9,6 +9,7 @@ import { Pagination } from "antd";
 import { set, get } from "idb-keyval";
 import { useNavigate } from "react-router-dom";
 import { databases } from "../../lib/appwrite";
+import { useCart } from "../../hooks/useCart";
 const DATABASE_ID = import.meta.env.VITE_DB_ID;
 const COLLECTION_ID = "products";
 
@@ -21,6 +22,7 @@ const ProductCatalogue = () => {
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [selectedType, setSelectedType] = useState<string>("All");
   const navigate = useNavigate();
+  const { addToCart } = useCart();
 
   const productTypes = ["All", ...new Set(products.map((p) => p.type))];
   const [sortBy, setSortBy] = useState<string>("default");
@@ -77,29 +79,17 @@ const ProductCatalogue = () => {
   const handleAddToCart = async (id: number, name: string) => {
     setLoadingId(id);
     try {
-      const existingCart = (await get("cartItems")) || [];
       const productToAdd = products.find((p) => p.id === id);
       if (!productToAdd) return;
 
-      const existingItem = existingCart.find(
-        (item: ProductType) => item.id === id
-      );
-      const updatedCart = existingItem
-        ? existingCart.map((item: ProductType) =>
-            item.id === id
-              ? { ...item, quantity: (item.quantity ?? 0) + 1 }
-              : item
-          )
-        : [...existingCart, { ...productToAdd, quantity: 1 }];
+      await addToCart(productToAdd);
 
-      await set("cartItems", updatedCart);
-      setTimeout(() => {
-        setLoadingId(null);
-        setToast(`${name} added to cart!`);
-        setTimeout(() => setToast(null), 1800);
-      }, 700);
+      setToast(`${name} added to cart!`);
+      setTimeout(() => setToast(null), 1800);
     } catch (error) {
       console.error("Failed to add to cart:", error);
+    } finally {
+      setLoadingId(null);
     }
   };
 

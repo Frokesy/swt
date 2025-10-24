@@ -58,7 +58,7 @@ const MyAccount = () => {
       <TopNav />
 
       <motion.div
-        className="w-[90%] lg:w-[75%] mx-auto my-10 text-[#333]"
+        className="w-[90%] lg:w-[60%] mx-auto my-10 text-[#333]"
         initial="hidden"
         animate="show"
         variants={{

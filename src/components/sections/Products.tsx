@@ -6,6 +6,7 @@ import { get, set } from "idb-keyval";
 import { useNavigate } from "react-router-dom";
 import { databases } from "../../lib/appwrite";
 import Toast from "../defaults/Toast";
+import { useCart } from "../../hooks/useCart";
 
 const DATABASE_ID = import.meta.env.VITE_DB_ID;
 const COLLECTION_ID = "products";
@@ -17,6 +18,7 @@ const Products = () => {
   const [loadingId, setLoadingId] = useState<number | null>(null);
   const [hoveredIcon, setHoveredIcon] = useState<string>("");
   const [toast, setToast] = useState<string | null>(null);
+  const { addToCart } = useCart();
   const navigate = useNavigate();
 
   const handleLike = async (id: number, name?: string) => {
@@ -50,37 +52,18 @@ const Products = () => {
 
   const handleAddToCart = async (id: number, name: string) => {
     setLoadingId(id);
-
     try {
-      const existingCart = (await get("cartItems")) || [];
-
       const productToAdd = products.find((p) => p.id === id);
       if (!productToAdd) return;
 
-      const existingItem = existingCart.find(
-        (item: ProductType) => item.id === id
-      );
+      await addToCart(productToAdd);
 
-      let updatedCart;
-      if (existingItem) {
-        updatedCart = existingCart.map((item: ProductType) =>
-          item.id === id
-            ? { ...item, quantity: (item.quantity ?? 0) + 1 }
-            : item
-        );
-      } else {
-        updatedCart = [...existingCart, { ...productToAdd, quantity: 1 }];
-      }
-
-      await set("cartItems", updatedCart);
-
-      setTimeout(() => {
-        setLoadingId(null);
-        setToast(`${name} added to cart!`);
-        setTimeout(() => setToast(null), 1800);
-      }, 700);
+      setToast(`${name} added to cart!`);
+      setTimeout(() => setToast(null), 1800);
     } catch (error) {
       console.error("Failed to add to cart:", error);
+    } finally {
+      setLoadingId(null);
     }
   };
   const categories = Array.from(new Set(products.map((p) => p.category)));
