@@ -6,21 +6,17 @@ import TopNav from "../../components/defaults/TopNav";
 import { motion, AnimatePresence } from "framer-motion";
 import type { ProductType } from "../../components/data/products";
 import { useCart } from "../../hooks/useCart";
+import { useNavigate } from "react-router-dom";
 
 const Carts = () => {
-  const {
-    cartItems,
-    increment,
-    decrement,
-    removeFromCart,
-    clearCart,
-    totalPrice,
-  } = useCart();
+  const { cartItems, increment, decrement, removeFromCart, totalPrice } =
+    useCart();
 
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [showRemoveModal, setShowRemoveModal] = useState(false);
   const [itemToRemove, setItemToRemove] = useState<ProductType | null>(null);
   const [toast, setToast] = useState(false);
+  const navigate = useNavigate();
 
   const confirmRemove = (item: ProductType) => {
     setItemToRemove(item);
@@ -35,10 +31,12 @@ const Carts = () => {
   };
 
   const handleCheckout = async () => {
-    clearCart();
     setShowConfirmModal(false);
     setToast(true);
-    setTimeout(() => setToast(false), 2000);
+    setTimeout(() => {
+      navigate("/checkout");
+      setToast(false);
+    }, 2000);
   };
   return (
     <div>
