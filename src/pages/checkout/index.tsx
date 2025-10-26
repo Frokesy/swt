@@ -1,25 +1,27 @@
-import { useEffect, useState } from "react";
-import { useCart } from "../../hooks/useCart";
-import { motion } from "framer-motion";
-import { ArrowLeft } from "lucide-react";
-import { useNavigate } from "react-router-dom";
-import Ad from "../../components/defaults/Ad";
-import Header from "../../components/defaults/Header";
-import TopNav from "../../components/defaults/TopNav";
-import { account, databases } from "../../lib/appwrite";
-import { ID, Query } from "appwrite";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { useEffect, useState } from 'react';
+import { useCart } from '../../hooks/useCart';
+import { motion } from 'framer-motion';
+import { ArrowLeft } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import Ad from '../../components/defaults/Ad';
+import Header from '../../components/defaults/Header';
+import TopNav from '../../components/defaults/TopNav';
+import { account, databases, client } from '../../lib/appwrite';
+import { ID, Query, Functions } from 'appwrite';
 
 const DATABASE_ID = import.meta.env.VITE_DB_ID;
-const DELIVERY_COLLECTION_ID = "deliveryAddresses";
+const DELIVERY_COLLECTION_ID = 'deliveryAddresses';
 
 const Checkout = () => {
   const { cartItems, totalPrice } = useCart();
   const navigate = useNavigate();
   const [userId, setUserId] = useState<string | null>(null);
-  const [address, setAddress] = useState("");
+  const [address, setAddress] = useState('');
   const [addressDocId, setAddressDocId] = useState<string | null>(null);
   const [hasAddress, setHasAddress] = useState(false);
   const [loading, setLoading] = useState(true);
+  const functions = new Functions(client);
 
   const deliveryFee = 5.99;
 
@@ -32,7 +34,7 @@ const Checkout = () => {
         const res = await databases.listDocuments(
           DATABASE_ID,
           DELIVERY_COLLECTION_ID,
-          [Query.equal("userId", user.$id)]
+          [Query.equal('userId', user.$id)]
         );
 
         if (res.documents.length > 0) {
@@ -42,7 +44,7 @@ const Checkout = () => {
           setHasAddress(true);
         }
       } catch (err) {
-        console.error("Error fetching address:", err);
+        console.error('Error fetching address:', err);
       } finally {
         setLoading(false);
       }
@@ -75,42 +77,73 @@ const Checkout = () => {
       }
 
       setHasAddress(true);
-      alert("Delivery address saved successfully ✅");
+      alert('Delivery address saved successfully ✅');
     } catch (err) {
-      console.error("Error saving address:", err);
-      alert("Failed to save address. Please try again.");
+      console.error('Error saving address:', err);
+      alert('Failed to save address. Please try again.');
     }
   };
 
   const handleProceed = async () => {
     if (!hasAddress) {
-      alert("Please provide a valid delivery address first.");
+      alert('Please provide a valid delivery address first.');
       return;
     }
 
-    // try {
-    //   const response = await fetch(
-    //     `${import.meta.env.VITE_API_URL}/create-checkout-session`,
-    //     {
-    //       method: "POST",
-    //       headers: { "Content-Type": "application/json" },
-    //       body: JSON.stringify({
-    //         cartItems,
-    //         total: totalPrice + deliveryFee,
-    //         userId,
-    //       }),
-    //     }
-    //   );
+    if (!userId) {
+      alert('You must be logged in to continue.');
+      return;
+    }
 
-    //   const { url } = await response.json();
-    //   if (url) {
-    //     window.location.href = url;
-    //   } else {
-    //     alert("Something went wrong. Please try again.");
-    //   }
-    // } catch (err) {
-    //   console.error("Error proceeding to checkout:", err);
-    // }
+    try {
+      const lineItems = cartItems.map((item) => ({
+        name: item.name,
+        price: item.price,
+        quantity: item.quantity,
+        currency: 'usd',
+      }));
+
+      const payload = {
+        lineItems,
+        deliveryFee,
+        successUrl: `${window.location.origin}/success`,
+        failureUrl: `${window.location.origin}/cancel`,
+        metadata: {
+          userId,
+          deliveryAddress: address,
+        },
+      };
+
+      console.log('Payload sent to Appwrite:', payload);
+
+      const execution = await functions.createExecution(
+        import.meta.env.VITE_STRIPE_FUNCTION_ID,
+        JSON.stringify(payload),
+        false,
+        '/checkout'
+      );
+
+      let response: any;
+      try {
+        response = JSON.parse(execution.responseBody ?? '{}');
+      } catch {
+        console.warn('Response is not valid JSON:', execution.responseBody);
+        response = {};
+      }
+
+      console.log('Execution:', execution);
+      console.log('Parsed Response:', response);
+
+      if (response.url) {
+        window.location.href = response.url;
+      } else {
+        alert('Unable to start checkout session.');
+        console.error('Stripe response:', response);
+      }
+    } catch (err) {
+      console.error('Error proceeding to checkout:', err);
+      alert('Something went wrong, please try again.');
+    }
   };
 
   const totalWithDelivery = totalPrice + deliveryFee;

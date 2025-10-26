@@ -10,6 +10,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@stripe/stripe-js": "^8.1.0",
     "@tailwindcss/vite": "^4.1.14",
     "antd": "^5.27.4",
     "appwrite": "^21.2.1",
