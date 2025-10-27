@@ -1,59 +1,86 @@
-import { useParams, useNavigate } from "react-router-dom";
-import { useState, useEffect, type MouseEvent, type TouchEvent } from "react";
-import { motion } from "framer-motion";
-import { CheckCircle, ArrowLeft, Circle, CircleCheck } from "lucide-react";
-import { set, get } from "idb-keyval";
-import { products, type ProductType } from "../../components/data/products";
-import Ad from "../../components/defaults/Ad";
-import TopNav from "../../components/defaults/TopNav";
-import Header from "../../components/defaults/Header";
+import { useParams, useNavigate } from 'react-router-dom';
+import { useState, useEffect, type MouseEvent, type TouchEvent } from 'react';
+import { motion } from 'framer-motion';
+import { CheckCircle, ArrowLeft, Circle, CircleCheck } from 'lucide-react';
+import { type ProductType } from '../../components/data/products';
+import Ad from '../../components/defaults/Ad';
+import TopNav from '../../components/defaults/TopNav';
+import Header from '../../components/defaults/Header';
+import { databases } from '../../lib/appwrite';
+import { useCart } from '../../hooks/useCart';
+const DATABASE_ID = import.meta.env.VITE_DB_ID;
+const COLLECTION_ID = 'products';
 
 const ProductDetailsPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [product, setProduct] = useState<ProductType | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [loadingId, setLoadingId] = useState<string | null>('');
+  const [products, setProducts] = useState<ProductType[]>([]);
+  const { addToCart } = useCart();
+
   const [toast, setToast] = useState<string | null>(null);
-  const [activeImage, setActiveImage] = useState<string>("");
+  const [activeImage, setActiveImage] = useState<string | undefined>('');
   const [zoomStyle, setZoomStyle] = useState({});
   const [isZooming, setIsZooming] = useState(false);
   const [isTouchZoom, setIsTouchZoom] = useState(false);
 
   useEffect(() => {
-    const found = products.find((p) => p.id === Number(id));
+    const fetchProducts = async () => {
+      const res = await databases.listDocuments(DATABASE_ID, COLLECTION_ID);
+
+      const mapped = res.documents.map((doc) => ({
+        id: doc.$id,
+        name: doc.name,
+        price: doc.price,
+        image: doc.image,
+        category: doc.category,
+        type: doc.type,
+        quantity: doc.quantity,
+        desc: doc.desc,
+        images: Array.isArray(doc.images)
+          ? doc.images
+          : typeof doc.images === 'string'
+            ? JSON.parse(doc.images)
+            : [],
+        liked: doc.liked,
+        inStock: doc.inStock,
+      }));
+
+      setProducts(mapped);
+    };
+
+    fetchProducts();
+  }, []);
+
+  useEffect(() => {
+    const found = products.find((p) => p.id === id);
     if (found) {
       setProduct(found);
-      const gallery = found.images || [found.image];
+      const gallery =
+        Array.isArray(product?.images) && product.images.length > 0
+          ? product.images
+          : [product?.image];
       setActiveImage(gallery[0]);
     } else {
       setProduct(null);
     }
-  }, [id]);
+  }, [products, id]);
 
-  const handleAddToCart = async () => {
-    if (!product) return;
-    setLoading(true);
+  const handleAddToCart = async (id: string, name: string) => {
+    setLoadingId(id);
     try {
-      const existingCart = (await get("cartItems")) || [];
-      const existingItem = existingCart.find(
-        (item: ProductType) => item.id === product.id
-      );
+      const productToAdd = products.find((p) => p.id === id);
+      if (!productToAdd) return;
 
-      const updatedCart = existingItem
-        ? existingCart.map((item: ProductType) =>
-            item.id === product.id
-              ? { ...item, quantity: (item.quantity ?? 0) + 1 }
-              : item
-          )
-        : [...existingCart, { ...product, quantity: 1 }];
+      await addToCart(productToAdd);
 
-      await set("cartItems", updatedCart);
-      setToast(`${product.name} added to cart!`);
+      setToast(`${name} added to cart!`);
       setTimeout(() => setToast(null), 1800);
     } catch (error) {
-      console.error("Add to cart failed:", error);
+      console.error('Failed to add to cart:', error);
     } finally {
-      setLoading(false);
+      setLoadingId(null);
     }
   };
 
@@ -122,8 +149,8 @@ const ProductDetailsPage = () => {
               onTouchMove={handleTouchMove}
               style={{
                 backgroundImage: `url(${activeImage})`,
-                backgroundSize: isZooming || isTouchZoom ? "200%" : "cover",
-                backgroundRepeat: "no-repeat",
+                backgroundSize: isZooming || isTouchZoom ? '200%' : 'cover',
+                backgroundRepeat: 'no-repeat',
                 ...zoomStyle,
               }}
             >
@@ -146,8 +173,8 @@ const ProductDetailsPage = () => {
                     whileHover={{ scale: 1.05 }}
                     className={`w-20 h-20 rounded-lg object-cover cursor-pointer border-2 ${
                       activeImage === img
-                        ? "border-green-700"
-                        : "border-transparent"
+                        ? 'border-green-700'
+                        : 'border-transparent'
                     }`}
                   />
                 ))}
@@ -182,7 +209,7 @@ const ProductDetailsPage = () => {
               </div>
 
               <p className="text-gray-600 leading-relaxed mb-8">
-                {product.desc || "No description available for this product."}
+                {product.desc || 'No description available for this product.'}
               </p>
 
               <div className="border-t border-gray-200 pt-6 space-y-3">
@@ -211,17 +238,17 @@ const ProductDetailsPage = () => {
 
             <motion.button
               whileTap={{ scale: 0.96 }}
-              onClick={handleAddToCart}
-              disabled={loading}
+              onClick={() => handleAddToCart(product.id, product.name)}
+              disabled={loadingId ? true : false}
               className="mt-10 w-full bg-green-700 hover:bg-green-800 text-white py-3 rounded-full font-semibold shadow-md transition-all"
             >
-              {loading ? (
+              {loadingId ? (
                 <motion.div
                   className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mx-auto"
                   transition={{ repeat: Infinity, duration: 0.8 }}
                 />
               ) : (
-                "Add to Cart"
+                'Add to Cart'
               )}
             </motion.button>
           </div>

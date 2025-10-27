@@ -1,27 +1,27 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import Ad from "../../components/defaults/Ad";
-import Header from "../../components/defaults/Header";
-import TopNav from "../../components/defaults/TopNav";
-import { type ProductType } from "../../components/data/products";
-import { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { Heart, Eye, CheckCircle } from "lucide-react";
-import { Pagination } from "antd";
-import { get, set } from "idb-keyval";
-import { useNavigate } from "react-router-dom";
-import { databases } from "../../lib/appwrite";
-import { Query } from "appwrite";
-import { useCart } from "../../hooks/useCart";
+import Ad from '../../components/defaults/Ad';
+import Header from '../../components/defaults/Header';
+import TopNav from '../../components/defaults/TopNav';
+import { type ProductType } from '../../components/data/products';
+import { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Heart, Eye, CheckCircle } from 'lucide-react';
+import { Pagination } from 'antd';
+import { get, set } from 'idb-keyval';
+import { useNavigate } from 'react-router-dom';
+import { databases } from '../../lib/appwrite';
+import { Query } from 'appwrite';
+import { useCart } from '../../hooks/useCart';
 
 const DATABASE_ID = import.meta.env.VITE_DB_ID;
-const COLLECTION_ID = "products";
+const COLLECTION_ID = 'products';
 
 const RegularSales = () => {
   const [products, setProducts] = useState<ProductType[]>([]);
-  const [activeId, setActiveId] = useState<number | null>(null);
-  const [liked, setLiked] = useState<number[]>([]);
-  const [loadingId, setLoadingId] = useState<number | null>(null);
-  const [hoveredIcon, setHoveredIcon] = useState<string>("");
+  const [activeId, setActiveId] = useState<string | null>(null);
+  const [liked, setLiked] = useState<string[]>([]);
+  const [loadingId, setLoadingId] = useState<string | null>(null);
+  const [hoveredIcon, setHoveredIcon] = useState<string>('');
   const [toast, setToast] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState<number>(1);
   const navigate = useNavigate();
@@ -32,12 +32,12 @@ const RegularSales = () => {
   useEffect(() => {
     const loadLikedItems = async () => {
       try {
-        const storedLikes: ProductType[] = (await get("likedItems")) || [];
+        const storedLikes: ProductType[] = (await get('likedItems')) || [];
         if (storedLikes.length > 0) {
           setLiked(storedLikes.map((item) => item.id));
         }
       } catch (error) {
-        console.error("Failed to load liked items:", error);
+        console.error('Failed to load liked items:', error);
       }
     };
 
@@ -48,11 +48,11 @@ const RegularSales = () => {
     const fetchTopProducts = async () => {
       try {
         const res = await databases.listDocuments(DATABASE_ID, COLLECTION_ID, [
-          (Query.orderDesc("salesCount"), Query.limit(12)),
+          (Query.orderDesc('salesCount'), Query.limit(12)),
         ]);
 
-        const mapped = res.documents.map((doc: any, index: number) => ({
-          id: index + 1,
+        const mapped = res.documents.map((doc: any) => ({
+          id: doc.$id,
           name: doc.name,
           price: doc.price,
           image: doc.image,
@@ -67,7 +67,7 @@ const RegularSales = () => {
 
         setProducts(mapped);
       } catch (error) {
-        console.error("Error fetching products:", error);
+        console.error('Error fetching products:', error);
       }
     };
 
@@ -80,9 +80,9 @@ const RegularSales = () => {
 
   console.log(totalPages);
 
-  const handleLike = async (id: number, name?: string) => {
+  const handleLike = async (id: string, name?: string) => {
     try {
-      const existingLikes: ProductType[] = (await get("likedItems")) || [];
+      const existingLikes: ProductType[] = (await get('likedItems')) || [];
       const productToToggle = products.find((p) => p.id === id);
       if (!productToToggle) return;
 
@@ -97,17 +97,17 @@ const RegularSales = () => {
         setToast(`${name ?? productToToggle.name} added to favorites`);
       }
 
-      await set("likedItems", updatedLikes);
+      await set('likedItems', updatedLikes);
 
       setLiked(updatedLikes.map((item) => item.id));
 
       setTimeout(() => setToast(null), 1800);
     } catch (error) {
-      console.error("Failed to update liked items:", error);
+      console.error('Failed to update liked items:', error);
     }
   };
 
-  const handleAddToCart = async (id: number, name: string) => {
+  const handleAddToCart = async (id: string, name: string) => {
     setLoadingId(id);
     try {
       const productToAdd = products.find((p) => p.id === id);
@@ -118,7 +118,7 @@ const RegularSales = () => {
       setToast(`${name} added to cart!`);
       setTimeout(() => setToast(null), 1800);
     } catch (error) {
-      console.error("Failed to add to cart:", error);
+      console.error('Failed to add to cart:', error);
     } finally {
       setLoadingId(null);
     }
@@ -147,7 +147,7 @@ const RegularSales = () => {
         <div className="flex justify-between items-center">
           <p>
             Showing {startIndex + 1}–
-            {Math.min(startIndex + itemsPerPage, products.length)} of{" "}
+            {Math.min(startIndex + itemsPerPage, products.length)} of{' '}
             {products.length}
           </p>
           <div className="border border-[#ddd] rounded-lg p-2">
@@ -196,8 +196,8 @@ const RegularSales = () => {
                         className="bg-white p-2 rounded-full cursor-pointer shadow-sm"
                         whileHover={{ scale: 1.15 }}
                         whileTap={{ scale: 0.9 }}
-                        onMouseEnter={() => setHoveredIcon("heart")}
-                        onMouseLeave={() => setHoveredIcon("")}
+                        onMouseEnter={() => setHoveredIcon('heart')}
+                        onMouseLeave={() => setHoveredIcon('')}
                         onClick={() => handleLike(product.id, product.name)}
                       >
                         <motion.div
@@ -211,10 +211,10 @@ const RegularSales = () => {
                             size={20}
                             className={`transition-colors duration-300 ${
                               liked.includes(product.id)
-                                ? "fill-red-500 text-red-500"
-                                : hoveredIcon === "heart"
-                                ? "text-[#a4c059]"
-                                : "text-gray-600"
+                                ? 'fill-red-500 text-red-500'
+                                : hoveredIcon === 'heart'
+                                  ? 'text-[#a4c059]'
+                                  : 'text-gray-600'
                             }`}
                           />
                         </motion.div>
@@ -224,16 +224,16 @@ const RegularSales = () => {
                         className="bg-white p-2 rounded-full cursor-pointer shadow-sm"
                         whileHover={{ scale: 1.15 }}
                         whileTap={{ scale: 0.9 }}
-                        onMouseEnter={() => setHoveredIcon("eye")}
-                        onMouseLeave={() => setHoveredIcon("")}
+                        onMouseEnter={() => setHoveredIcon('eye')}
+                        onMouseLeave={() => setHoveredIcon('')}
                         onClick={() => navigate(`/product/${product.id}`)}
                       >
                         <Eye
                           size={20}
                           className={`transition-colors duration-300 ${
-                            hoveredIcon === "eye"
-                              ? "text-[#a4c059]"
-                              : "text-gray-600"
+                            hoveredIcon === 'eye'
+                              ? 'text-[#a4c059]'
+                              : 'text-gray-600'
                           }`}
                         />
                       </motion.div>
@@ -260,7 +260,7 @@ const RegularSales = () => {
                     initial={{ opacity: 0, y: 30 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: 30 }}
-                    transition={{ duration: 0.4, ease: "easeInOut" }}
+                    transition={{ duration: 0.4, ease: 'easeInOut' }}
                     onClick={() => handleAddToCart(product.id, product.name)}
                     className="bg-[#6eb356] text-white py-2 rounded-lg hover:bg-[#5aa246] transition-colors ease-in-out duration-300 font-semibold flex items-center justify-center text-sm sm:text-base"
                   >
@@ -272,11 +272,11 @@ const RegularSales = () => {
                         transition={{
                           repeat: Infinity,
                           duration: 0.8,
-                          ease: "linear",
+                          ease: 'linear',
                         }}
                       />
                     ) : (
-                      "Add to Cart"
+                      'Add to Cart'
                     )}
                   </motion.button>
                 )}
@@ -302,7 +302,7 @@ const RegularSales = () => {
               initial={{ opacity: 0, y: 60 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 60 }}
-              transition={{ duration: 0.4, ease: "easeOut" }}
+              transition={{ duration: 0.4, ease: 'easeOut' }}
               className="fixed bottom-6 left-1/2 -translate-x-1/2 bg-[#6eb356] text-white px-5 py-3 rounded-full shadow-lg flex items-center space-x-2 z-50"
             >
               <CheckCircle size={18} className="text-white" />

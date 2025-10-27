@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { account, databases } from '../../lib/appwrite';
 import { ID } from 'appwrite';
@@ -22,16 +22,21 @@ const Success = () => {
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [success, setSuccess] = useState(false);
-
+  const hasProcessed = useRef(false);
   const deliveryFee = 5.99;
   const totalWithDelivery = totalPrice + deliveryFee;
 
   useEffect(() => {
     const handleSuccess = async () => {
+      if (hasProcessed.current) return;
+      hasProcessed.current = true;
+
       try {
         const currentUser = await account.get();
         setUser(currentUser);
+
         const normalizedItems = cartItems.map((item) => ({
+          id: item.id,
           name: item.name,
           price: item.price,
           quantity: item.quantity ?? 1,
@@ -83,6 +88,30 @@ const Success = () => {
           body: await adminEmailHtml,
         });
 
+        console.log(cartItems);
+
+        for (const item of normalizedItems) {
+          try {
+            const product = await databases.getDocument(
+              DATABASE_ID,
+              'products',
+              item.id
+            );
+
+            const currentSales = product.salesCount ?? 0;
+            const newSales = currentSales + item.quantity;
+
+            await databases.updateDocument(DATABASE_ID, 'products', item.id, {
+              salesCount: newSales,
+            });
+          } catch (err) {
+            console.error(
+              `❌ Failed to update sales count for ${item.name}:`,
+              err
+            );
+          }
+        }
+
         toast.success('🎉 Order placed successfully! Check your email.', {
           position: 'top-center',
           autoClose: 2000,
@@ -90,7 +119,6 @@ const Success = () => {
           hideProgressBar: true,
         });
 
-        // 🧹 Clear cart and mark success
         clearCart();
         setSuccess(true);
       } catch (err) {

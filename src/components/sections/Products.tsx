@@ -1,29 +1,29 @@
-import { useEffect, useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { Heart, Eye } from "lucide-react";
-import { type ProductType } from "../data/products";
-import { get, set } from "idb-keyval";
-import { useNavigate } from "react-router-dom";
-import { databases } from "../../lib/appwrite";
-import Toast from "../defaults/Toast";
-import { useCart } from "../../hooks/useCart";
+import { useEffect, useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Heart, Eye } from 'lucide-react';
+import { type ProductType } from '../data/products';
+import { get, set } from 'idb-keyval';
+import { useNavigate } from 'react-router-dom';
+import { databases } from '../../lib/appwrite';
+import Toast from '../defaults/Toast';
+import { useCart } from '../../hooks/useCart';
 
 const DATABASE_ID = import.meta.env.VITE_DB_ID;
-const COLLECTION_ID = "products";
+const COLLECTION_ID = 'products';
 
 const Products = () => {
-  const [activeId, setActiveId] = useState<number | null>(null);
-  const [liked, setLiked] = useState<number[]>([]);
+  const [activeId, setActiveId] = useState<string | null>(null);
+  const [liked, setLiked] = useState<string[]>([]);
   const [products, setProducts] = useState<ProductType[]>([]);
-  const [loadingId, setLoadingId] = useState<number | null>(null);
-  const [hoveredIcon, setHoveredIcon] = useState<string>("");
+  const [loadingId, setLoadingId] = useState<string | null>(null);
+  const [hoveredIcon, setHoveredIcon] = useState<string>('');
   const [toast, setToast] = useState<string | null>(null);
   const { addToCart } = useCart();
   const navigate = useNavigate();
 
-  const handleLike = async (id: number, name?: string) => {
+  const handleLike = async (id: string, name?: string) => {
     try {
-      const existingLikes = (await get("likedItems")) || [];
+      const existingLikes = (await get('likedItems')) || [];
       const productToToggle = products.find((p) => p.id === id);
       if (!productToToggle) return;
 
@@ -40,17 +40,17 @@ const Products = () => {
         setToast(`${name ?? productToToggle.name} added to favorites`);
       }
 
-      await set("likedItems", updatedLikes);
+      await set('likedItems', updatedLikes);
 
       setLiked(updatedLikes.map((item: ProductType) => item.id));
 
       setTimeout(() => setToast(null), 1800);
     } catch (error) {
-      console.error("Failed to update liked items:", error);
+      console.error('Failed to update liked items:', error);
     }
   };
 
-  const handleAddToCart = async (id: number, name: string) => {
+  const handleAddToCart = async (id: string, name: string) => {
     setLoadingId(id);
     try {
       const productToAdd = products.find((p) => p.id === id);
@@ -61,7 +61,7 @@ const Products = () => {
       setToast(`${name} added to cart!`);
       setTimeout(() => setToast(null), 1800);
     } catch (error) {
-      console.error("Failed to add to cart:", error);
+      console.error('Failed to add to cart:', error);
     } finally {
       setLoadingId(null);
     }
@@ -92,12 +92,12 @@ const Products = () => {
   useEffect(() => {
     const loadLikedItems = async () => {
       try {
-        const storedLikes: ProductType[] = (await get("likedItems")) || [];
+        const storedLikes: ProductType[] = (await get('likedItems')) || [];
         if (storedLikes.length > 0) {
           setLiked(storedLikes.map((item) => item.id));
         }
       } catch (error) {
-        console.error("Failed to load liked items:", error);
+        console.error('Failed to load liked items:', error);
       }
     };
 
@@ -108,8 +108,8 @@ const Products = () => {
     const fetchProducts = async () => {
       const res = await databases.listDocuments(DATABASE_ID, COLLECTION_ID);
 
-      const mapped = res.documents.map((doc, index) => ({
-        id: index + 1,
+      const mapped = res.documents.map((doc) => ({
+        id: doc.$id,
         name: doc.name,
         price: doc.price,
         image: doc.image,
@@ -179,8 +179,8 @@ const Products = () => {
                             className="bg-white p-2 rounded-full cursor-pointer shadow-sm"
                             whileHover={{ scale: 1.15 }}
                             whileTap={{ scale: 0.9 }}
-                            onMouseEnter={() => setHoveredIcon("heart")}
-                            onMouseLeave={() => setHoveredIcon("")}
+                            onMouseEnter={() => setHoveredIcon('heart')}
+                            onMouseLeave={() => setHoveredIcon('')}
                             onClick={() => handleLike(product.id, product.name)}
                           >
                             <motion.div
@@ -196,10 +196,10 @@ const Products = () => {
                                 size={20}
                                 className={`transition-colors duration-300 ${
                                   liked.includes(product.id)
-                                    ? "fill-red-500 text-red-500"
-                                    : hoveredIcon === "heart"
-                                    ? "text-[#a4c059]"
-                                    : "text-gray-600"
+                                    ? 'fill-red-500 text-red-500'
+                                    : hoveredIcon === 'heart'
+                                      ? 'text-[#a4c059]'
+                                      : 'text-gray-600'
                                 }`}
                               />
                             </motion.div>
@@ -209,16 +209,16 @@ const Products = () => {
                             className="bg-white p-2 rounded-full cursor-pointer shadow-sm"
                             whileHover={{ scale: 1.15 }}
                             whileTap={{ scale: 0.9 }}
-                            onMouseEnter={() => setHoveredIcon("eye")}
-                            onMouseLeave={() => setHoveredIcon("")}
+                            onMouseEnter={() => setHoveredIcon('eye')}
+                            onMouseLeave={() => setHoveredIcon('')}
                             onClick={() => navigate(`/product/${product.id}`)}
                           >
                             <Eye
                               size={20}
                               className={`transition-colors duration-300 ${
-                                hoveredIcon === "eye"
-                                  ? "text-[#a4c059]"
-                                  : "text-gray-600"
+                                hoveredIcon === 'eye'
+                                  ? 'text-[#a4c059]'
+                                  : 'text-gray-600'
                               }`}
                             />
                           </motion.div>
@@ -241,7 +241,7 @@ const Products = () => {
                         initial={{ opacity: 0, y: 30 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: 30 }}
-                        transition={{ duration: 0.4, ease: "easeInOut" }}
+                        transition={{ duration: 0.4, ease: 'easeInOut' }}
                         onClick={() =>
                           handleAddToCart(product.id, product.name)
                         }
@@ -255,11 +255,11 @@ const Products = () => {
                             transition={{
                               repeat: Infinity,
                               duration: 0.8,
-                              ease: "linear",
+                              ease: 'linear',
                             }}
                           />
                         ) : (
-                          "Add to Cart"
+                          'Add to Cart'
                         )}
                       </motion.button>
                     )}
