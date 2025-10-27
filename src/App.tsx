@@ -1,38 +1,39 @@
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
-import Home from "./pages/home";
-import { AnimatePresence } from "framer-motion";
-import DeliveryInfo from "./pages/delivery-info";
-import RegularSales from "./pages/regular-sales";
-import ProductCatalogue from "./pages/product-catalog";
-import PreOrder from "./pages/preorder";
-import MyAccount from "./pages/account";
-import Carts from "./pages/cart";
-import ProductDetailsPage from "./pages/product-details";
-import Login from "./pages/auth/login";
-import Signup from "./pages/auth/signup";
-import ProtectedRoute from "./components/defaults/ProtectedRoute";
-import Checkout from "./pages/checkout";
+import { createBrowserRouter, RouterProvider } from 'react-router-dom';
+import Home from './pages/home';
+import { AnimatePresence } from 'framer-motion';
+import DeliveryInfo from './pages/delivery-info';
+import RegularSales from './pages/regular-sales';
+import ProductCatalogue from './pages/product-catalog';
+import PreOrder from './pages/preorder';
+import MyAccount from './pages/account';
+import Carts from './pages/cart';
+import ProductDetailsPage from './pages/product-details';
+import Login from './pages/auth/login';
+import Signup from './pages/auth/signup';
+import ProtectedRoute from './components/defaults/ProtectedRoute';
+import Checkout from './pages/checkout';
+import Success from './pages/checkout/success';
 
 const App = () => {
   const router = createBrowserRouter([
-    { path: "/", element: <Home /> },
+    { path: '/', element: <Home /> },
     {
-      path: "/account",
+      path: '/account',
       element: (
         <ProtectedRoute>
           <MyAccount />
         </ProtectedRoute>
       ),
     },
-    { path: "/delivery-info", element: <DeliveryInfo /> },
-    { path: "/regular-sales", element: <RegularSales /> },
-    { path: "/product-catalogue", element: <ProductCatalogue /> },
+    { path: '/delivery-info', element: <DeliveryInfo /> },
+    { path: '/regular-sales', element: <RegularSales /> },
+    { path: '/product-catalogue', element: <ProductCatalogue /> },
     {
-      path: "/product/:id",
+      path: '/product/:id',
       element: <ProductDetailsPage />,
     },
     {
-      path: "/preorder",
+      path: '/preorder',
       element: (
         <ProtectedRoute>
           <PreOrder />
@@ -40,7 +41,7 @@ const App = () => {
       ),
     },
     {
-      path: "/cart",
+      path: '/cart',
       element: (
         <ProtectedRoute>
           <Carts />
@@ -48,15 +49,23 @@ const App = () => {
       ),
     },
     {
-      path: "/checkout",
+      path: '/checkout',
       element: (
         <ProtectedRoute>
           <Checkout />
         </ProtectedRoute>
       ),
     },
-    { path: "/auth/login", element: <Login /> },
-    { path: "/auth/signup", element: <Signup /> },
+    {
+      path: '/success',
+      element: (
+        <ProtectedRoute>
+          <Success />
+        </ProtectedRoute>
+      ),
+    },
+    { path: '/auth/login', element: <Login /> },
+    { path: '/auth/signup', element: <Signup /> },
   ]);
   return (
     <AnimatePresence mode="wait">
