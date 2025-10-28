@@ -141,7 +141,7 @@ const MyAccount = () => {
 
             {activeTab === 'addresses' && <Addresses userId={user.userId} />}
 
-            {activeTab === 'settings' && <SettingsSection user={user.userId} />}
+            {activeTab === 'settings' && <SettingsSection />}
           </motion.div>
         </AnimatePresence>
 
