@@ -1,19 +1,22 @@
-import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { CheckCircle, X } from "lucide-react";
-import Header from "../../components/defaults/Header";
-import TopNav from "../../components/defaults/TopNav";
-import Ad from "../../components/defaults/Ad";
+import { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { CheckCircle, X } from 'lucide-react';
+import Header from '../../components/defaults/Header';
+import TopNav from '../../components/defaults/TopNav';
+import Ad from '../../components/defaults/Ad';
+import { databases } from '../../lib/appwrite';
+const DATABASE_ID = import.meta.env.VITE_DB_ID;
+const COLLECTION_ID = 'preorders';
 
 const PreOrder = () => {
   const [form, setForm] = useState({
-    productName: "",
-    description: "",
-    quantity: "",
-    deliveryDate: "",
-    name: "",
-    email: "",
-    phone: "",
+    productName: '',
+    description: '',
+    quantity: '',
+    deliveryDate: '',
+    name: '',
+    email: '',
+    phone: '',
   });
 
   const [showModal, setShowModal] = useState(false);
@@ -30,21 +33,37 @@ const PreOrder = () => {
     e.preventDefault();
     setShowModal(true);
   };
-
-  const handleConfirm = () => {
+  const handleConfirm = async () => {
     setShowModal(false);
-    setToast(true);
-    setTimeout(() => setToast(false), 2000);
 
-    setForm({
-      productName: "",
-      description: "",
-      quantity: "",
-      deliveryDate: "",
-      name: "",
-      email: "",
-      phone: "",
-    });
+    try {
+      await databases.createDocument(DATABASE_ID, COLLECTION_ID, 'unique()', {
+        productName: form.productName,
+        description: form.description,
+        quantity: Number(form.quantity),
+        deliveryDate: form.deliveryDate,
+        name: form.name,
+        email: form.email,
+        phone: form.phone,
+      });
+
+      setToast(true);
+      setTimeout(() => setToast(false), 2000);
+
+      // Reset form
+      setForm({
+        productName: '',
+        description: '',
+        quantity: '',
+        deliveryDate: '',
+        name: '',
+        email: '',
+        phone: '',
+      });
+    } catch (error) {
+      console.error('❌ Failed to create preorder:', error);
+      alert('Failed to confirm preorder. Please try again.');
+    }
   };
 
   const fadeUp = {
@@ -226,11 +245,11 @@ const PreOrder = () => {
                     <strong>Quantity:</strong> {form.quantity}
                   </p>
                   <p>
-                    <strong>Description:</strong> {form.description || "N/A"}
+                    <strong>Description:</strong> {form.description || 'N/A'}
                   </p>
                   <p>
-                    <strong>Delivery:</strong>{" "}
-                    {form.deliveryDate || "Not specified"}
+                    <strong>Delivery:</strong>{' '}
+                    {form.deliveryDate || 'Not specified'}
                   </p>
                   <p>
                     <strong>Name:</strong> {form.name}
@@ -270,7 +289,7 @@ const PreOrder = () => {
               initial={{ opacity: 0, y: 60 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 60 }}
-              transition={{ duration: 0.4, ease: "easeOut" }}
+              transition={{ duration: 0.4, ease: 'easeOut' }}
               className="fixed bottom-6 left-1/2 -translate-x-1/2 bg-green-700 text-white px-5 py-3 rounded-full shadow-lg flex items-center space-x-2 z-50"
             >
               <CheckCircle size={18} className="text-white" />
