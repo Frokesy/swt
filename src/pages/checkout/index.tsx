@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useState } from 'react';
 import { useCart } from '../../hooks/useCart';
-import { motion } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import { ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import Ad from '../../components/defaults/Ad';
@@ -9,6 +9,8 @@ import Header from '../../components/defaults/Header';
 import TopNav from '../../components/defaults/TopNav';
 import { account, databases, client } from '../../lib/appwrite';
 import { ID, Query, Functions } from 'appwrite';
+import Toast from '../../components/defaults/Toast';
+import ErrToast from '../../components/defaults/ErrToast';
 
 const DATABASE_ID = import.meta.env.VITE_DB_ID;
 const DELIVERY_COLLECTION_ID = 'deliveryAddresses';
@@ -21,6 +23,8 @@ const Checkout = () => {
   const [addressDocId, setAddressDocId] = useState<string | null>(null);
   const [hasAddress, setHasAddress] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [toast, setToast] = useState<string | null>(null);
+  const [errToast, setErrToast] = useState<string | null>(null);
   const functions = new Functions(client);
 
   const deliveryFee = 5.99;
@@ -77,21 +81,26 @@ const Checkout = () => {
       }
 
       setHasAddress(true);
-      alert('Delivery address saved successfully ✅');
+      setToast('Delivery address saved successfully ✅');
+      setTimeout(() => setToast(null), 1800);
     } catch (err) {
       console.error('Error saving address:', err);
-      alert('Failed to save address. Please try again.');
+      setErrToast('Failed to save address. Please try again.');
+      setTimeout(() => setErrToast(null), 1800);
     }
   };
 
   const handleProceed = async () => {
     if (!hasAddress) {
-      alert('Please provide a valid delivery address first.');
+      setErrToast('Please provide a valid delivery address first.');
+      setTimeout(() => setErrToast(null), 1800);
+
       return;
     }
 
     if (!userId) {
-      alert('You must be logged in to continue.');
+      setErrToast('You must be logged in to continue.');
+      setTimeout(() => setErrToast(null), 1800);
       return;
     }
 
@@ -137,12 +146,14 @@ const Checkout = () => {
       if (response.url) {
         window.location.href = response.url;
       } else {
-        alert('Unable to start checkout session.');
+        setErrToast('Unable to start checkout session.');
         console.error('Stripe response:', response);
+        setTimeout(() => setErrToast(null), 1800);
       }
     } catch (err) {
       console.error('Error proceeding to checkout:', err);
-      alert('Something went wrong, please try again.');
+      setErrToast('Something went wrong, please try again.');
+      setTimeout(() => setErrToast(null), 1800);
     }
   };
 
@@ -237,6 +248,10 @@ const Checkout = () => {
           Proceed to Payment
         </motion.button>
       </div>
+      <AnimatePresence>{toast && <Toast toast={toast} />}</AnimatePresence>
+      <AnimatePresence>
+        {errToast && <ErrToast toast={errToast} />}
+      </AnimatePresence>
     </div>
   );
 };

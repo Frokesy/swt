@@ -10,6 +10,7 @@ import { PreorderAdminTemplate } from '../../components/email-templates/PreOrder
 import { render } from '@react-email/render';
 import { PreorderUserTemplate } from '../../components/email-templates/PreOrderUserTemplate';
 import Plunk from '@plunk/node';
+import ErrToast from '../../components/defaults/ErrToast';
 const DATABASE_ID = import.meta.env.VITE_DB_ID;
 const COLLECTION_ID = 'preorders';
 const plunkSecret = import.meta.env.VITE_PLUNK_SECRET;
@@ -29,6 +30,7 @@ const PreOrder = () => {
   const [showModal, setShowModal] = useState(false);
   const [toast, setToast] = useState(false);
   const [user, setUser] = useState<any>(null);
+  const [errToast, setErrToast] = useState<string | null>(null);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -103,7 +105,8 @@ const PreOrder = () => {
       });
     } catch (error) {
       console.error('❌ Failed to create preorder:', error);
-      alert('Failed to confirm preorder. Please try again.');
+      setErrToast('Failed to confirm preorder. Please try again.');
+      setTimeout(() => setErrToast(null), 1800);
     }
   };
 
@@ -353,6 +356,9 @@ const PreOrder = () => {
           )}
         </AnimatePresence>
       </motion.div>
+      <AnimatePresence>
+        {errToast && <ErrToast toast={errToast} />}
+      </AnimatePresence>
     </div>
   );
 };
