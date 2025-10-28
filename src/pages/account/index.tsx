@@ -1,6 +1,8 @@
-import { useState } from 'react';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { User, ShoppingBag, Package, MapPin, Settings } from 'lucide-react';
+import { account, databases } from '../../lib/appwrite';
 import Ad from '../../components/defaults/Ad';
 import Header from '../../components/defaults/Header';
 import TopNav from '../../components/defaults/TopNav';
@@ -10,6 +12,9 @@ import Addresses from '../../components/sections/account/Addresses';
 import Preorders from '../../components/sections/account/Preorders';
 import Orders from '../../components/sections/account/Orders';
 import ProfileInfo from '../../components/sections/account/ProfileInfo';
+import { Query } from 'appwrite';
+
+const DATABASE_ID = import.meta.env.VITE_DB_ID;
 
 const tabs = [
   { key: 'profile', label: 'Profile Info', icon: <User size={18} /> },
@@ -22,11 +27,53 @@ const tabs = [
 const MyAccount = () => {
   const [activeTab, setActiveTab] = useState('profile');
   const [logoutModal, setLogoutModal] = useState(false);
+  const [user, setUser] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
 
   const fadeUp = {
     hidden: { opacity: 0, y: 20 },
     show: { opacity: 1, y: 0 },
   };
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const accountData = await account.get();
+        const userDoc = await databases.listDocuments(DATABASE_ID, 'users', [
+          Query.equal('userId', accountData.$id),
+        ]);
+
+        setUser(userDoc.documents[0]);
+      } catch (error) {
+        console.error('Error fetching user:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUser();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center min-h-[60vh] text-gray-500">
+        Loading your account...
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div className="flex flex-col justify-center items-center min-h-[60vh] text-center">
+        <p className="text-gray-600 mb-3">
+          You need to be logged in to view your account.
+        </p>
+        <a href="/" className="text-green-700 font-medium hover:underline">
+          Go to Login
+        </a>
+      </div>
+    );
+  }
 
   return (
     <div>
@@ -85,16 +132,16 @@ const MyAccount = () => {
             className="bg-white shadow-md rounded-xl p-6 border border-gray-100"
           >
             {activeTab === 'profile' && (
-              <ProfileInfo setLogoutModal={setLogoutModal} />
+              <ProfileInfo user={user} setLogoutModal={setLogoutModal} />
             )}
 
-            {activeTab === 'orders' && <Orders />}
+            {activeTab === 'orders' && <Orders userId={user.$id} />}
 
-            {activeTab === 'preorders' && <Preorders />}
+            {activeTab === 'preorders' && <Preorders userId={user.$id} />}
 
-            {activeTab === 'addresses' && <Addresses />}
+            {activeTab === 'addresses' && <Addresses userId={user.$id} />}
 
-            {activeTab === 'settings' && <SettingsSection />}
+            {activeTab === 'settings' && <SettingsSection user={user} />}
           </motion.div>
         </AnimatePresence>
 
