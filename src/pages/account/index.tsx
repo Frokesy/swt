@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   User,
   ShoppingBag,
@@ -8,23 +8,22 @@ import {
   Settings,
   LogOut,
   Camera,
-  X,
-} from "lucide-react";
-import Ad from "../../components/defaults/Ad";
-import Header from "../../components/defaults/Header";
-import TopNav from "../../components/defaults/TopNav";
-import { account } from "../../lib/appwrite";
+} from 'lucide-react';
+import Ad from '../../components/defaults/Ad';
+import Header from '../../components/defaults/Header';
+import TopNav from '../../components/defaults/TopNav';
+import LogoutConfirmModal from '../../components/modals/LogoutConfirmModal';
 
 const tabs = [
-  { key: "profile", label: "Profile Info", icon: <User size={18} /> },
-  { key: "orders", label: "Orders", icon: <ShoppingBag size={18} /> },
-  { key: "preorders", label: "Preorders", icon: <Package size={18} /> },
-  { key: "addresses", label: "Addresses", icon: <MapPin size={18} /> },
-  { key: "settings", label: "Settings", icon: <Settings size={18} /> },
+  { key: 'profile', label: 'Profile Info', icon: <User size={18} /> },
+  { key: 'orders', label: 'Orders', icon: <ShoppingBag size={18} /> },
+  { key: 'preorders', label: 'Preorders', icon: <Package size={18} /> },
+  { key: 'addresses', label: 'Addresses', icon: <MapPin size={18} /> },
+  { key: 'settings', label: 'Settings', icon: <Settings size={18} /> },
 ];
 
 const MyAccount = () => {
-  const [activeTab, setActiveTab] = useState("profile");
+  const [activeTab, setActiveTab] = useState('profile');
   const [logoutModal, setLogoutModal] = useState(false);
   const [profileImg, setProfileImg] = useState<string | null>(null);
 
@@ -38,16 +37,6 @@ const MyAccount = () => {
     if (file) {
       const url = URL.createObjectURL(file);
       setProfileImg(url);
-    }
-  };
-
-  const handleLogout = async () => {
-    try {
-      await account.deleteSession("current");
-      setLogoutModal(false);
-      window.location.href = "/auth/login";
-    } catch (err) {
-      console.error("Logout failed:", err);
     }
   };
 
@@ -87,8 +76,8 @@ const MyAccount = () => {
               onClick={() => setActiveTab(tab.key)}
               className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition ${
                 activeTab === tab.key
-                  ? "bg-green-700 text-white"
-                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                  ? 'bg-green-700 text-white'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
               }`}
             >
               {tab.icon}
@@ -107,7 +96,7 @@ const MyAccount = () => {
             transition={{ duration: 0.3 }}
             className="bg-white shadow-md rounded-xl p-6 border border-gray-100"
           >
-            {activeTab === "profile" && (
+            {activeTab === 'profile' && (
               <div>
                 <h3 className="text-lg font-semibold mb-6 text-green-700">
                   Profile Information
@@ -202,7 +191,7 @@ const MyAccount = () => {
               </div>
             )}
 
-            {activeTab === "orders" && (
+            {activeTab === 'orders' && (
               <div>
                 <h3 className="text-lg font-semibold mb-3 text-green-700">
                   Orders
@@ -213,7 +202,7 @@ const MyAccount = () => {
               </div>
             )}
 
-            {activeTab === "preorders" && (
+            {activeTab === 'preorders' && (
               <div>
                 <h3 className="text-lg font-semibold mb-3 text-green-700">
                   Preorders
@@ -222,7 +211,7 @@ const MyAccount = () => {
               </div>
             )}
 
-            {activeTab === "addresses" && (
+            {activeTab === 'addresses' && (
               <div>
                 <h3 className="text-lg font-semibold mb-3 text-green-700">
                   Addresses
@@ -233,7 +222,7 @@ const MyAccount = () => {
               </div>
             )}
 
-            {activeTab === "settings" && (
+            {activeTab === 'settings' && (
               <div>
                 <h3 className="text-lg font-semibold mb-3 text-green-700">
                   Settings
@@ -248,51 +237,7 @@ const MyAccount = () => {
 
         <AnimatePresence>
           {logoutModal && (
-            <motion.div
-              key="modal"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-black/40 backdrop-blur-sm flex justify-center items-center z-50"
-            >
-              <motion.div
-                initial={{ scale: 0.9, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                exit={{ scale: 0.9, opacity: 0 }}
-                transition={{ duration: 0.3 }}
-                className="bg-white rounded-xl shadow-lg p-6 w-[90%] max-w-sm relative"
-              >
-                <button
-                  className="absolute top-3 right-3 text-gray-500 hover:text-gray-700"
-                  onClick={() => setLogoutModal(false)}
-                >
-                  <X size={20} />
-                </button>
-
-                <div className="text-center">
-                  <LogOut className="text-red-500 mx-auto mb-3" size={32} />
-                  <h3 className="text-lg font-semibold mb-2">Confirm Logout</h3>
-                  <p className="text-gray-600 mb-5">
-                    Are you sure you want to log out?
-                  </p>
-
-                  <div className="flex justify-between gap-3">
-                    <button
-                      onClick={() => setLogoutModal(false)}
-                      className="w-1/2 border border-gray-400 py-2 rounded-lg hover:bg-gray-100"
-                    >
-                      Cancel
-                    </button>
-                    <button
-                      onClick={handleLogout}
-                      className="w-1/2 bg-red-500 text-white py-2 rounded-lg hover:bg-red-600 transition"
-                    >
-                      Logout
-                    </button>
-                  </div>
-                </div>
-              </motion.div>
-            </motion.div>
+            <LogoutConfirmModal setLogoutModal={setLogoutModal} />
           )}
         </AnimatePresence>
       </motion.div>
