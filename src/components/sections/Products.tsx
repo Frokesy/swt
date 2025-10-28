@@ -231,7 +231,7 @@ const Products = () => {
                     {product.name}
                   </h3>
                   <p className="text-green-700 font-bold text-sm sm:text-base">
-                    ${product.price}
+                    £{product.price}
                   </p>
 
                   <AnimatePresence>

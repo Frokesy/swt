@@ -1,12 +1,12 @@
-import { useState } from "react";
-import { Trash2, Plus, Minus, CheckCircle, XCircle } from "lucide-react";
-import Ad from "../../components/defaults/Ad";
-import Header from "../../components/defaults/Header";
-import TopNav from "../../components/defaults/TopNav";
-import { motion, AnimatePresence } from "framer-motion";
-import type { ProductType } from "../../components/data/products";
-import { useCart } from "../../hooks/useCart";
-import { useNavigate } from "react-router-dom";
+import { useState } from 'react';
+import { Trash2, Plus, Minus, CheckCircle, XCircle } from 'lucide-react';
+import Ad from '../../components/defaults/Ad';
+import Header from '../../components/defaults/Header';
+import TopNav from '../../components/defaults/TopNav';
+import { motion, AnimatePresence } from 'framer-motion';
+import type { ProductType } from '../../components/data/products';
+import { useCart } from '../../hooks/useCart';
+import { useNavigate } from 'react-router-dom';
 
 const Carts = () => {
   const { cartItems, increment, decrement, removeFromCart, totalPrice } =
@@ -34,7 +34,7 @@ const Carts = () => {
     setShowConfirmModal(false);
     setToast(true);
     setTimeout(() => {
-      navigate("/checkout");
+      navigate('/checkout');
       setToast(false);
     }, 2000);
   };
@@ -76,7 +76,7 @@ const Carts = () => {
                       <div>
                         <h3 className="font-semibold text-base">{item.name}</h3>
                         <p className="text-green-700 font-semibold text-sm mt-1">
-                          ${item.price.toFixed(2)}
+                          £{item.price.toFixed(2)}
                         </p>
                       </div>
                     </div>
@@ -120,8 +120,8 @@ const Carts = () => {
               className="sticky bottom-0 left-0 right-0 bg-white border-t border-gray-200 mt-10 pt-4 pb-6 px-4 md:px-0 flex flex-col md:flex-row justify-between items-center gap-4 shadow-[0_-4px_10px_rgba(0,0,0,0.04)]"
             >
               <p className="text-lg font-semibold text-gray-800">
-                Total:{" "}
-                <span className="text-green-700">${totalPrice.toFixed(2)}</span>
+                Total:{' '}
+                <span className="text-green-700">£{totalPrice.toFixed(2)}</span>
               </p>
               <motion.button
                 whileTap={{ scale: 0.95 }}
@@ -154,7 +154,7 @@ const Carts = () => {
                 Remove Item
               </h2>
               <p className="text-gray-600 mb-4">
-                Are you sure you want to remove{" "}
+                Are you sure you want to remove{' '}
                 <span className="font-semibold">{itemToRemove.name}</span> from
                 your cart?
               </p>
@@ -198,9 +198,9 @@ const Carts = () => {
               </h2>
               <p className="text-gray-600 mb-4">
                 You’re about to confirm {cartItems.length} item
-                {cartItems.length > 1 && "s"} totaling{" "}
+                {cartItems.length > 1 && 's'} totaling{' '}
                 <span className="font-semibold text-green-700">
-                  ${totalPrice.toFixed(2)}
+                  £{totalPrice.toFixed(2)}
                 </span>
               </p>
 
@@ -230,7 +230,7 @@ const Carts = () => {
             initial={{ opacity: 0, y: 60 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 60 }}
-            transition={{ duration: 0.4, ease: "easeOut" }}
+            transition={{ duration: 0.4, ease: 'easeOut' }}
             className="fixed bottom-6 left-1/2 -translate-x-1/2 bg-green-700 text-white px-5 py-3 rounded-full shadow-lg flex items-center space-x-2 z-50"
           >
             <CheckCircle size={18} className="text-white" />

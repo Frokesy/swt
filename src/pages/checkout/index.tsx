@@ -123,8 +123,6 @@ const Checkout = () => {
         },
       };
 
-      console.log('Payload sent to Appwrite:', payload);
-
       const execution = await functions.createExecution(
         import.meta.env.VITE_STRIPE_FUNCTION_ID,
         JSON.stringify(payload),
@@ -139,9 +137,6 @@ const Checkout = () => {
         console.warn('Response is not valid JSON:', execution.responseBody);
         response = {};
       }
-
-      console.log('Execution:', execution);
-      console.log('Parsed Response:', response);
 
       if (response.url) {
         window.location.href = response.url;
@@ -191,22 +186,22 @@ const Checkout = () => {
             >
               <span>{item.name}</span>
               <span className="text-green-700 font-medium">
-                ${item.price.toFixed(2)} × {item.quantity}
+                £{item.price.toFixed(2)} × {item.quantity}
               </span>
             </div>
           ))}
 
           <div className="flex justify-between py-3 border-t border-gray-200 mt-3">
             <span>Subtotal</span>
-            <span>${totalPrice.toFixed(2)}</span>
+            <span>£{totalPrice.toFixed(2)}</span>
           </div>
           <div className="flex justify-between py-3">
             <span>Delivery Fee</span>
-            <span>${deliveryFee.toFixed(2)}</span>
+            <span>£{deliveryFee.toFixed(2)}</span>
           </div>
           <div className="flex justify-between py-3 font-semibold text-green-700">
             <span>Total</span>
-            <span>${totalWithDelivery.toFixed(2)}</span>
+            <span>£{totalWithDelivery.toFixed(2)}</span>
           </div>
         </div>
 

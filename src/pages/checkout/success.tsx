@@ -103,6 +103,7 @@ const Success = () => {
 
             await databases.updateDocument(DATABASE_ID, 'products', item.id, {
               salesCount: newSales,
+              quantity: product.quantity - 1,
             });
           } catch (err) {
             console.error(

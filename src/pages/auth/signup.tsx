@@ -1,23 +1,26 @@
-import { useState } from "react";
-import { AnimatePresence, motion } from "framer-motion";
-import { Mail, Lock, UserPlus, User } from "lucide-react";
-import Ad from "../../components/defaults/Ad";
-import Header from "../../components/defaults/Header";
-import TopNav from "../../components/defaults/TopNav";
-import { NavLink } from "react-router-dom";
-import { account } from "../../lib/appwrite";
-import Toast from "../../components/defaults/Toast";
+import { useState } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
+import { Mail, Lock, UserPlus, User } from 'lucide-react';
+import Ad from '../../components/defaults/Ad';
+import Header from '../../components/defaults/Header';
+import TopNav from '../../components/defaults/TopNav';
+import { NavLink } from 'react-router-dom';
+import { account, databases } from '../../lib/appwrite';
+import Toast from '../../components/defaults/Toast';
 
 const fadeUp = {
   hidden: { opacity: 0, y: 20 },
   show: { opacity: 1, y: 0 },
 };
 
+const DATABASE_ID = import.meta.env.VITE_DB_ID;
+const USERS_COLLECTION_ID = 'users';
+
 const Signup = () => {
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [toast, setToast] = useState<string | null>(null);
@@ -27,7 +30,7 @@ const Signup = () => {
     setError(null);
 
     if (password !== confirmPassword) {
-      setError("Passwords do not match!");
+      setError('Passwords do not match!');
       setTimeout(() => setError(null), 1800);
       return;
     }
@@ -35,19 +38,29 @@ const Signup = () => {
     setLoading(true);
 
     try {
-      await account.create("unique()", email, password, name);
+      const newUser = await account.create('unique()', email, password, name);
 
       await account.createEmailPasswordSession(email, password);
+      await databases.createDocument(
+        DATABASE_ID,
+        USERS_COLLECTION_ID,
+        'unique()',
+        {
+          userId: newUser.$id,
+          name,
+          email,
+        }
+      );
       setTimeout(() => {
         setLoading(false);
         setToast(`Signup successful!`);
         setTimeout(() => {
-          window.location.href = "/";
+          window.location.href = '/';
           setToast(null);
         }, 1800);
       }, 800);
     } catch (err) {
-      setError("Signup failed. Please try again.");
+      setError('Signup failed. Please try again.');
       setTimeout(() => setError(null), 1800);
       setLoading(false);
       console.log(err);
@@ -164,7 +177,7 @@ const Signup = () => {
           </button>
 
           <p className="text-center text-sm text-gray-600 mt-4">
-            Already have an account?{" "}
+            Already have an account?{' '}
             <NavLink
               to="/auth/login"
               className="text-green-700 font-medium hover:underline"

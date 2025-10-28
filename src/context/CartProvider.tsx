@@ -1,8 +1,8 @@
-import { useEffect, useState } from "react";
-import { get, set } from "idb-keyval";
-import type { ReactNode } from "react";
-import type { ProductType } from "../components/data/products";
-import { CartContext } from "./CartContext";
+import { useEffect, useState } from 'react';
+import { get, set } from 'idb-keyval';
+import type { ReactNode } from 'react';
+import type { ProductType } from '../components/data/products';
+import { CartContext } from './CartContext';
 
 export interface CartContextType {
   cartItems: ProductType[];
@@ -10,9 +10,9 @@ export interface CartContextType {
   totalPrice: number;
   refreshCart: () => Promise<void>;
   addToCart: (product: ProductType) => Promise<void>;
-  removeFromCart: (id: number) => Promise<void>;
-  increment: (id: number) => Promise<void>;
-  decrement: (id: number) => Promise<void>;
+  removeFromCart: (id: string) => Promise<void>;
+  increment: (id: string) => Promise<void>;
+  decrement: (id: string) => Promise<void>;
   clearCart: () => Promise<void>;
 }
 
@@ -25,7 +25,7 @@ export const CartProvider = ({ children }: CartProviderProps) => {
   const [cartCount, setCartCount] = useState(0);
 
   const loadCart = async () => {
-    const items: ProductType[] = (await get("cartItems")) || [];
+    const items: ProductType[] = (await get('cartItems')) || [];
     setCartItems(items);
     setCartCount(items.length);
   };
@@ -33,11 +33,11 @@ export const CartProvider = ({ children }: CartProviderProps) => {
   const syncCart = async (items: ProductType[]) => {
     setCartItems(items);
     setCartCount(items.length);
-    await set("cartItems", items);
+    await set('cartItems', items);
   };
 
   const addToCart = async (product: ProductType) => {
-    const existingCart: ProductType[] = (await get("cartItems")) || [];
+    const existingCart: ProductType[] = (await get('cartItems')) || [];
     const existingItem = existingCart.find((item) => item.id === product.id);
 
     const updatedCart = existingItem
@@ -51,19 +51,19 @@ export const CartProvider = ({ children }: CartProviderProps) => {
     await syncCart(updatedCart);
   };
 
-  const removeFromCart = async (id: number) => {
+  const removeFromCart = async (id: string) => {
     const updated = cartItems.filter((item) => item.id !== id);
     await syncCart(updated);
   };
 
-  const increment = async (id: number) => {
+  const increment = async (id: string) => {
     const updated = cartItems.map((item) =>
       item.id === id ? { ...item, quantity: (item.quantity ?? 1) + 1 } : item
     );
     await syncCart(updated);
   };
 
-  const decrement = async (id: number) => {
+  const decrement = async (id: string) => {
     const updated = cartItems
       .map((item) =>
         item.id === id
@@ -77,7 +77,7 @@ export const CartProvider = ({ children }: CartProviderProps) => {
   const clearCart = async () => {
     setCartItems([]);
     setCartCount(0);
-    await set("cartItems", []);
+    await set('cartItems', []);
   };
 
   const totalPrice = cartItems.reduce(
@@ -87,8 +87,8 @@ export const CartProvider = ({ children }: CartProviderProps) => {
 
   useEffect(() => {
     loadCart();
-    window.addEventListener("storage", loadCart);
-    return () => window.removeEventListener("storage", loadCart);
+    window.addEventListener('storage', loadCart);
+    return () => window.removeEventListener('storage', loadCart);
   }, []);
 
   return (
