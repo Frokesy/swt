@@ -135,7 +135,7 @@ const MyAccount = () => {
               <ProfileInfo user={user} setLogoutModal={setLogoutModal} />
             )}
 
-            {activeTab === 'orders' && <Orders userId={user.$id} />}
+            {activeTab === 'orders' && <Orders userId={user.userId} />}
 
             {activeTab === 'preorders' && <Preorders userId={user.$id} />}
 

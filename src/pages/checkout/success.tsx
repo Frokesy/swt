@@ -53,7 +53,7 @@ const Success = () => {
             totalPrice,
             deliveryFee: Math.round(deliveryFee * 100),
             status: 'Paid',
-            orderId: new Date().toISOString(),
+            orderId: Math.random().toString(16).slice(2, 10),
           }
         );
 
