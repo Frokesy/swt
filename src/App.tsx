@@ -13,6 +13,7 @@ import Signup from './pages/auth/signup';
 import ProtectedRoute from './components/defaults/ProtectedRoute';
 import Checkout from './pages/checkout';
 import Success from './pages/checkout/success';
+import Cancel from './pages/checkout/cancel';
 
 const App = () => {
   const router = createBrowserRouter([
@@ -61,6 +62,14 @@ const App = () => {
       element: (
         <ProtectedRoute>
           <Success />
+        </ProtectedRoute>
+      ),
+    },
+    {
+      path: '/cancel',
+      element: (
+        <ProtectedRoute>
+          <Cancel />
         </ProtectedRoute>
       ),
     },
