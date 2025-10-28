@@ -14,6 +14,7 @@ import Header from '../../components/defaults/Header';
 import TopNav from '../../components/defaults/TopNav';
 import LogoutConfirmModal from '../../components/modals/LogoutConfirmModal';
 import SettingsSection from '../../components/sections/account/Settings';
+import Addresses from '../../components/sections/account/Addresses';
 
 const tabs = [
   { key: 'profile', label: 'Profile Info', icon: <User size={18} /> },
@@ -212,16 +213,7 @@ const MyAccount = () => {
               </div>
             )}
 
-            {activeTab === 'addresses' && (
-              <div>
-                <h3 className="text-lg font-semibold mb-3 text-green-700">
-                  Addresses
-                </h3>
-                <p className="text-gray-600">
-                  You haven’t added any addresses yet.
-                </p>
-              </div>
-            )}
+            {activeTab === 'addresses' && <Addresses />}
 
             {activeTab === 'settings' && <SettingsSection />}
           </motion.div>
