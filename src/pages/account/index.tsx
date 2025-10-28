@@ -16,6 +16,7 @@ import LogoutConfirmModal from '../../components/modals/LogoutConfirmModal';
 import SettingsSection from '../../components/sections/account/Settings';
 import Addresses from '../../components/sections/account/Addresses';
 import Preorders from '../../components/sections/account/Preorders';
+import Orders from '../../components/sections/account/Orders';
 
 const tabs = [
   { key: 'profile', label: 'Profile Info', icon: <User size={18} /> },
@@ -194,16 +195,7 @@ const MyAccount = () => {
               </div>
             )}
 
-            {activeTab === 'orders' && (
-              <div>
-                <h3 className="text-lg font-semibold mb-3 text-green-700">
-                  Orders
-                </h3>
-                <p className="text-gray-600">
-                  You haven’t placed any orders yet.
-                </p>
-              </div>
-            )}
+            {activeTab === 'orders' && <Orders />}
 
             {activeTab === 'preorders' && <Preorders />}
 
