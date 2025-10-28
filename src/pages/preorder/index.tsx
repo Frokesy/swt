@@ -1,10 +1,11 @@
-import { useState } from 'react';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { CheckCircle, X } from 'lucide-react';
 import Header from '../../components/defaults/Header';
 import TopNav from '../../components/defaults/TopNav';
 import Ad from '../../components/defaults/Ad';
-import { databases } from '../../lib/appwrite';
+import { account, databases } from '../../lib/appwrite';
 import { PreorderAdminTemplate } from '../../components/email-templates/PreOrderAdminTemplate';
 import { render } from '@react-email/render';
 import { PreorderUserTemplate } from '../../components/email-templates/PreOrderUserTemplate';
@@ -27,6 +28,7 @@ const PreOrder = () => {
 
   const [showModal, setShowModal] = useState(false);
   const [toast, setToast] = useState(false);
+  const [user, setUser] = useState<any>(null);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -44,6 +46,7 @@ const PreOrder = () => {
 
     try {
       await databases.createDocument(DATABASE_ID, COLLECTION_ID, 'unique()', {
+        userId: user.$id,
         productName: form.productName,
         description: form.description,
         quantity: Number(form.quantity),
@@ -108,6 +111,18 @@ const PreOrder = () => {
     hidden: { opacity: 0, y: 20 },
     show: { opacity: 1, y: 0 },
   };
+
+  useEffect(() => {
+    const checkSession = async () => {
+      try {
+        const res = await account.get();
+        setUser(res);
+      } catch {
+        setUser(null);
+      }
+    };
+    checkSession();
+  }, []);
 
   return (
     <div>
