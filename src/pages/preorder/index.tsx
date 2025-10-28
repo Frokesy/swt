@@ -5,8 +5,14 @@ import Header from '../../components/defaults/Header';
 import TopNav from '../../components/defaults/TopNav';
 import Ad from '../../components/defaults/Ad';
 import { databases } from '../../lib/appwrite';
+import { PreorderAdminTemplate } from '../../components/email-templates/PreOrderAdminTemplate';
+import { render } from '@react-email/render';
+import { PreorderUserTemplate } from '../../components/email-templates/PreOrderUserTemplate';
+import Plunk from '@plunk/node';
 const DATABASE_ID = import.meta.env.VITE_DB_ID;
 const COLLECTION_ID = 'preorders';
+const plunkSecret = import.meta.env.VITE_PLUNK_SECRET;
+const plunkClient = new Plunk(plunkSecret);
 
 const PreOrder = () => {
   const [form, setForm] = useState({
@@ -50,7 +56,39 @@ const PreOrder = () => {
       setToast(true);
       setTimeout(() => setToast(false), 2000);
 
-      // Reset form
+      const userEmailHtml = render(
+        <PreorderUserTemplate
+          name={form.name}
+          productName={form.productName}
+          quantity={Number(form.quantity)}
+          deliveryDate={form.deliveryDate}
+        />
+      );
+
+      await plunkClient.emails.send({
+        to: form.email,
+        subject: 'Your Rehubot Order is Confirmed 🥖',
+        body: await userEmailHtml,
+      });
+
+      const adminEmailHtml = render(
+        <PreorderAdminTemplate
+          productName={form.productName}
+          description={form.description}
+          quantity={Number(form.quantity)}
+          deliveryDate={form.deliveryDate}
+          name={form.name}
+          email={form.email}
+          phone={form.phone}
+        />
+      );
+
+      await plunkClient.emails.send({
+        to: 'frokeslini@gmail.com',
+        subject: 'New Rehubot Order Received 📦',
+        body: await adminEmailHtml,
+      });
+
       setForm({
         productName: '',
         description: '',
