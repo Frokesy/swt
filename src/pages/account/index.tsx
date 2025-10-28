@@ -13,6 +13,7 @@ import Ad from '../../components/defaults/Ad';
 import Header from '../../components/defaults/Header';
 import TopNav from '../../components/defaults/TopNav';
 import LogoutConfirmModal from '../../components/modals/LogoutConfirmModal';
+import SettingsSection from '../../components/sections/account/Settings';
 
 const tabs = [
   { key: 'profile', label: 'Profile Info', icon: <User size={18} /> },
@@ -222,16 +223,7 @@ const MyAccount = () => {
               </div>
             )}
 
-            {activeTab === 'settings' && (
-              <div>
-                <h3 className="text-lg font-semibold mb-3 text-green-700">
-                  Settings
-                </h3>
-                <button className="border border-gray-300 rounded-lg px-4 py-2 hover:bg-gray-100 transition">
-                  Change Password
-                </button>
-              </div>
-            )}
+            {activeTab === 'settings' && <SettingsSection />}
           </motion.div>
         </AnimatePresence>
 
