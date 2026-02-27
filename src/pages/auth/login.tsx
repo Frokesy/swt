@@ -1,13 +1,13 @@
-import { useState } from "react";
-import { AnimatePresence, motion } from "framer-motion";
-import { Lock, Mail, LogIn } from "lucide-react";
-import Ad from "../../components/defaults/Ad";
-import Header from "../../components/defaults/Header";
-import TopNav from "../../components/defaults/TopNav";
-import { NavLink } from "react-router-dom";
-import { account } from "../../lib/appwrite";
-import { useLocation } from "react-router-dom";
-import Toast from "../../components/defaults/Toast";
+import { useState } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
+import { Lock, Mail, LogIn, Eye, EyeClosed } from 'lucide-react';
+import Ad from '../../components/defaults/Ad';
+import Header from '../../components/defaults/Header';
+import TopNav from '../../components/defaults/TopNav';
+import { NavLink } from 'react-router-dom';
+import { account } from '../../lib/appwrite';
+import { useLocation } from 'react-router-dom';
+import Toast from '../../components/defaults/Toast';
 
 const fadeUp = {
   hidden: { opacity: 0, y: 20 },
@@ -15,13 +15,14 @@ const fadeUp = {
 };
 
 const Login = () => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState<boolean>(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [toast, setToast] = useState<string | null>(null);
   const location = useLocation();
-  const from = location.state?.from || "/";
+  const from = location.state?.from || '/';
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -40,7 +41,7 @@ const Login = () => {
         }, 1800);
       }, 800);
     } catch (err) {
-      setError("Invalid credentials. Please try again.");
+      setError('Invalid credentials. Please try again.');
       setTimeout(() => setError(null), 1800);
       setLoading(false);
       console.log(err);
@@ -92,16 +93,33 @@ const Login = () => {
 
           <div className="mb-5">
             <label className="block text-sm font-medium mb-1">Password</label>
-            <div className="flex items-center border border-gray-300 rounded-lg px-3 py-2 focus-within:border-green-600">
-              <Lock size={18} className="text-gray-500 mr-2" />
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••••"
-                className="w-full outline-none"
-                required
-              />
+            <div className="flex items-center justify-between border border-gray-300 rounded-lg px-3 py-2 focus-within:border-green-600">
+              <div className="flex items-center w-[90%]">
+                <Lock size={18} className="text-gray-500 mr-2" />
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="••••••••"
+                  className="w-full outline-none"
+                  required
+                />
+              </div>
+              <div className="">
+                {showPassword ? (
+                  <Eye
+                    size={18}
+                    className="text-gray-500 cursor-pointer"
+                    onClick={() => setShowPassword(!showPassword)}
+                  />
+                ) : (
+                  <EyeClosed
+                    size={18}
+                    className="text-gray-500 cursor-pointer"
+                    onClick={() => setShowPassword(!showPassword)}
+                  />
+                )}
+              </div>
             </div>
           </div>
 
@@ -125,7 +143,7 @@ const Login = () => {
           </button>
 
           <p className="text-center text-sm text-gray-600 mt-4">
-            Don’t have an account?{" "}
+            Don’t have an account?{' '}
             <NavLink
               to="/auth/signup"
               className="text-green-700 font-medium hover:underline"

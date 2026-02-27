@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Mail, Lock, UserPlus, User } from 'lucide-react';
+import { Mail, Lock, UserPlus, User, EyeClosed, Eye } from 'lucide-react';
 import Ad from '../../components/defaults/Ad';
 import Header from '../../components/defaults/Header';
 import TopNav from '../../components/defaults/TopNav';
@@ -20,6 +20,8 @@ const Signup = () => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState<boolean>(false);
+
   const [confirmPassword, setConfirmPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -127,16 +129,33 @@ const Signup = () => {
 
           <div className="mb-5">
             <label className="block text-sm font-medium mb-1">Password</label>
-            <div className="flex items-center border border-gray-300 rounded-lg px-3 py-2 focus-within:border-green-600">
-              <Lock size={18} className="text-gray-500 mr-2" />
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••••"
-                className="w-full outline-none"
-                required
-              />
+            <div className="flex items-center justify-between border border-gray-300 rounded-lg px-3 py-2 focus-within:border-green-600">
+              <div className="flex items-center w-[90%]">
+                <Lock size={18} className="text-gray-500 mr-2" />
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="••••••••"
+                  className="w-full outline-none"
+                  required
+                />
+              </div>
+              <div className="">
+                {showPassword ? (
+                  <Eye
+                    size={18}
+                    className="text-gray-500 cursor-pointer"
+                    onClick={() => setShowPassword(!showPassword)}
+                  />
+                ) : (
+                  <EyeClosed
+                    size={18}
+                    className="text-gray-500 cursor-pointer"
+                    onClick={() => setShowPassword(!showPassword)}
+                  />
+                )}
+              </div>
             </div>
           </div>
 
@@ -147,7 +166,7 @@ const Signup = () => {
             <div className="flex items-center border border-gray-300 rounded-lg px-3 py-2 focus-within:border-green-600">
               <Lock size={18} className="text-gray-500 mr-2" />
               <input
-                type="password"
+                type={showPassword ? 'text' : 'password'}
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 placeholder="••••••••"
