@@ -15,6 +15,9 @@ import ProtectedRoute from './components/defaults/ProtectedRoute';
 import Checkout from './pages/checkout';
 import Success from './pages/checkout/success';
 import Cancel from './pages/checkout/cancel';
+import AdminLogin from './pages/admin/login';
+import AdminDashboard from './pages/admin/dashboard';
+import ProtectedAdminRoute from './components/defaults/ProtectedAdminRoute';
 
 const App = () => {
   const router = createBrowserRouter([
@@ -77,6 +80,17 @@ const App = () => {
     },
     { path: '/auth/login', element: <Login /> },
     { path: '/auth/signup', element: <Signup /> },
+
+    // Admin Routes
+    { path: '/admin/login', element: <AdminLogin /> },
+    {
+      path: '/admin/dashboard',
+      element: (
+        <ProtectedAdminRoute>
+          <AdminDashboard />
+        </ProtectedAdminRoute>
+      ),
+    },
   ]);
   return (
     <AnimatePresence mode="wait">
