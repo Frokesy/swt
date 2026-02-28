@@ -5,7 +5,8 @@ import TopNav from '../../components/defaults/TopNav';
 import { type ProductType } from '../../components/data/products';
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Heart, Eye, CheckCircle } from 'lucide-react';
+import { CheckCircle } from 'lucide-react';
+import ProductCard from '../../components/defaults/ProductCard';
 import { Pagination } from 'antd';
 import { get, set } from 'idb-keyval';
 import { useNavigate } from 'react-router-dom';
@@ -18,10 +19,8 @@ const COLLECTION_ID = 'products';
 
 const RegularSales = () => {
   const [products, setProducts] = useState<ProductType[]>([]);
-  const [activeId, setActiveId] = useState<string | null>(null);
   const [liked, setLiked] = useState<string[]>([]);
   const [loadingId, setLoadingId] = useState<string | null>(null);
-  const [hoveredIcon, setHoveredIcon] = useState<string>('');
   const [toast, setToast] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState<number>(1);
   const navigate = useNavigate();
@@ -167,120 +166,20 @@ const RegularSales = () => {
           className="grid lg:grid-cols-4 grid-cols-2 gap-5 my-10"
         >
           {currentProducts.map((product) => (
-            <motion.div
-              key={product.id}
-              variants={itemVariants}
-              className="relative border border-[#ddd] rounded-lg p-3 flex flex-col space-y-3 bg-white overflow-hidden shadow-sm hover:shadow-md transition-shadow"
-              onMouseEnter={() => setActiveId(product.id)}
-              onMouseLeave={() => setActiveId(null)}
-              onTouchStart={() => setActiveId(product.id)}
-              onTouchEnd={() => setActiveId(null)}
-            >
-              <div className="relative">
-                <img
-                  src={product.image}
-                  alt={product.name}
-                  className="w-full h-[160px] object-cover rounded-md"
-                />
-
-                <AnimatePresence>
-                  {activeId === product.id && (
-                    <motion.div
-                      className="absolute top-3 right-3 flex flex-col space-y-2"
-                      initial={{ opacity: 0, scale: 0.9 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      exit={{ opacity: 0, scale: 0.9 }}
-                      transition={{ duration: 0.3 }}
-                    >
-                      <motion.div
-                        className="bg-white p-2 rounded-full cursor-pointer shadow-sm"
-                        whileHover={{ scale: 1.15 }}
-                        whileTap={{ scale: 0.9 }}
-                        onMouseEnter={() => setHoveredIcon('heart')}
-                        onMouseLeave={() => setHoveredIcon('')}
-                        onClick={() => handleLike(product.id, product.name)}
-                      >
-                        <motion.div
-                          initial={false}
-                          animate={{
-                            scale: liked.includes(product.id) ? [1, 1.3, 1] : 1,
-                          }}
-                          transition={{ duration: 0.3 }}
-                        >
-                          <Heart
-                            size={20}
-                            className={`transition-colors duration-300 ${
-                              liked.includes(product.id)
-                                ? 'fill-red-500 text-red-500'
-                                : hoveredIcon === 'heart'
-                                  ? 'text-[#a4c059]'
-                                  : 'text-gray-600'
-                            }`}
-                          />
-                        </motion.div>
-                      </motion.div>
-
-                      <motion.div
-                        className="bg-white p-2 rounded-full cursor-pointer shadow-sm"
-                        whileHover={{ scale: 1.15 }}
-                        whileTap={{ scale: 0.9 }}
-                        onMouseEnter={() => setHoveredIcon('eye')}
-                        onMouseLeave={() => setHoveredIcon('')}
-                        onClick={() => navigate(`/product/${product.id}`)}
-                      >
-                        <Eye
-                          size={20}
-                          className={`transition-colors duration-300 ${
-                            hoveredIcon === 'eye'
-                              ? 'text-[#a4c059]'
-                              : 'text-gray-600'
-                          }`}
-                        />
-                      </motion.div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
-
-              <h3 className="font-semibold text-sm sm:text-base">
-                {product.name}
-              </h3>
-              <p className="text-green-700 font-bold text-sm sm:text-base">
-                £{product.price}
-              </p>
-
-              <p className="text-xs text-gray-500">
-                Bought {product.salesCount} times recently
-              </p>
-
-              <AnimatePresence>
-                {activeId === product.id && (
-                  <motion.button
-                    key="cart-btn"
-                    initial={{ opacity: 0, y: 30 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: 30 }}
-                    transition={{ duration: 0.4, ease: 'easeInOut' }}
-                    onClick={() => handleAddToCart(product.id, product.name)}
-                    className="bg-[#6eb356] text-white py-2 rounded-lg hover:bg-[#5aa246] transition-colors ease-in-out duration-300 font-semibold flex items-center justify-center text-sm sm:text-base"
-                  >
-                    {loadingId === product.id ? (
-                      <motion.div
-                        className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"
-                        initial={{ rotate: 0 }}
-                        animate={{ rotate: 360 }}
-                        transition={{
-                          repeat: Infinity,
-                          duration: 0.8,
-                          ease: 'linear',
-                        }}
-                      />
-                    ) : (
-                      'Add to Cart'
-                    )}
-                  </motion.button>
-                )}
-              </AnimatePresence>
+            <motion.div key={product.id} variants={itemVariants}>
+              <ProductCard
+                product={product}
+                liked={liked.includes(product.id)}
+                loading={loadingId === product.id}
+                onLike={handleLike}
+                onView={(id) => navigate(`/product/${id}`)}
+                onAddToCart={handleAddToCart}
+                extra={
+                  <p className="text-xs text-gray-500">
+                    Bought {product.salesCount} times recently
+                  </p>
+                }
+              />
             </motion.div>
           ))}
         </motion.div>

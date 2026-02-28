@@ -1,76 +1,290 @@
-import { useState } from "react";
-import { Menu, Search, ShoppingBag, UserIcon, X } from "lucide-react";
-import { NavLink } from "react-router-dom";
-import { AnimatePresence, motion } from "framer-motion";
-import { useCart } from "../../hooks/useCart";
+import { useEffect, useRef, useState } from 'react';
+import { Menu, Search, ShoppingBag, UserIcon, X } from 'lucide-react';
+import { NavLink, useNavigate } from 'react-router-dom';
+import { AnimatePresence, motion } from 'framer-motion';
+import { useCart } from '../../hooks/useCart';
+import { databases } from '../../lib/appwrite';
+import { type ProductType } from '../data/products';
 
 const navItems = [
-  { id: 1, label: "Home", link: "/" },
-  { id: 2, label: "My Account", link: "/account" },
-  { id: 3, label: "Product Catalogue", link: "/product-catalogue" },
-  { id: 4, label: "Regular Sales", link: "/regular-sales" },
-  { id: 5, label: "Preorder", link: "/preorder" },
-  { id: 6, label: "Delivery Information", link: "/delivery-info" },
+  { id: 1, label: 'Home', link: '/' },
+  { id: 2, label: 'My Account', link: '/account' },
+  { id: 3, label: 'Product Catalogue', link: '/product-catalogue' },
+  { id: 4, label: 'Regular Sales', link: '/regular-sales' },
+  { id: 5, label: 'Preorder', link: '/preorder' },
+  { id: 6, label: 'Delivery Information', link: '/delivery-info' },
 ];
+
+const DATABASE_ID = import.meta.env.VITE_DB_ID;
+const COLLECTION_ID = 'products';
 
 const Header = () => {
   const { cartCount } = useCart();
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const navigate = useNavigate();
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [products, setProducts] = useState<ProductType[]>([]);
+  const [searchLoading, setSearchLoading] = useState(true);
+  const [searchError, setSearchError] = useState('');
+  const searchContainerRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const fetchProducts = async () => {
+      try {
+        setSearchLoading(true);
+        const res = await databases.listDocuments(DATABASE_ID, COLLECTION_ID);
+
+        if (!isMounted) return;
+
+        const mapped = res.documents.map((doc) => ({
+          id: doc.$id,
+          name: doc.name,
+          price: doc.price,
+          image: doc.image,
+          category: doc.category,
+          type: doc.type,
+          quantity: doc.quantity,
+          desc: doc.desc,
+          images: doc.images,
+          liked: doc.liked,
+          inStock: doc.inStock,
+        }));
+
+        setProducts(mapped);
+        setSearchError('');
+      } catch (error) {
+        console.error('Failed to fetch products for header search:', error);
+        if (isMounted) {
+          setSearchError('Unable to load products right now.');
+        }
+      } finally {
+        if (isMounted) {
+          setSearchLoading(false);
+        }
+      }
+    };
+
+    fetchProducts();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!searchOpen) return;
+
+    const handleOutsideClick = (event: MouseEvent) => {
+      if (
+        searchContainerRef.current &&
+        !searchContainerRef.current.contains(event.target as Node)
+      ) {
+        setSearchOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleOutsideClick);
+
+    return () => {
+      document.removeEventListener('mousedown', handleOutsideClick);
+    };
+  }, [searchOpen]);
+
+  const normalizedQuery = searchQuery.trim().toLowerCase();
+  const filteredProducts = normalizedQuery
+    ? products
+        .filter((product) =>
+          [product.name, product.category, product.type].some((value) =>
+            value?.toLowerCase().includes(normalizedQuery)
+          )
+        )
+        .slice(0, 6)
+    : [];
+
+  const handleSearchToggle = () => {
+    setSearchOpen((prev) => !prev);
+  };
+
+  const handleSearchSelect = (productId: string) => {
+    setSearchOpen(false);
+    setSearchQuery('');
+    navigate(`/product/${productId}`);
+  };
 
   return (
     <>
-      <div className="lg:w-[60%] w-[90%] mx-auto lg:my-10 my-4 flex justify-between items-center">
-        <Menu
-          className="lg:hidden block cursor-pointer"
-          onClick={() => setDrawerOpen(true)}
-        />
-
-        <h2 className="text-green-700 lg:text-[44px] text-[30px] italic font-bold">
-          Rehubot
-        </h2>
-
-        <div className="lg:flex hidden w-[60%] border border-[#ccc] pl-3 rounded-lg">
-          <input
-            type="text"
-            placeholder="Search for products..."
-            className="outline-none border-none w-[90%] pr-4"
+      <div className="relative" ref={searchContainerRef}>
+        <div className="lg:w-[60%] w-[90%] mx-auto lg:my-10 my-4 flex justify-between items-center gap-4">
+          <Menu
+            className="lg:hidden block cursor-pointer"
+            onClick={() => setDrawerOpen(true)}
           />
-          <div className="bg-[#6eb356] p-3 w-[10%] flex items-center justify-center cursor-pointer">
-            <Search color="#fff" />
+
+          <h2 className="text-green-700 lg:text-[44px] text-[30px] italic font-bold">
+            Rehubot
+          </h2>
+
+          <div className="lg:flex hidden w-[60%] border border-[#ccc] pl-3 rounded-lg overflow-hidden">
+            <input
+              type="text"
+              value={searchQuery}
+              onFocus={() => setSearchOpen(true)}
+              onChange={(e) => {
+                setSearchOpen(true);
+                setSearchQuery(e.target.value);
+              }}
+              placeholder="Search for products..."
+              className="outline-none border-none w-[90%] pr-4"
+            />
+            <button
+              type="button"
+              onClick={handleSearchToggle}
+              className="bg-[#6eb356] p-3 w-[10%] flex items-center justify-center cursor-pointer"
+              aria-label="Toggle product search"
+            >
+              <Search color="#fff" />
+            </button>
+          </div>
+
+          <div className="flex space-x-6 items-center">
+            <Search
+              className="lg:hidden block cursor-pointer"
+              onClick={handleSearchToggle}
+            />
+            <NavLink to="/cart">
+              <div className="bg-[#6eb356] p-2 relative rounded-full cursor-pointer">
+                <ShoppingBag color="#fff" />
+                <AnimatePresence>
+                  {cartCount > 0 && (
+                    <motion.span
+                      key={cartCount}
+                      initial={{ scale: 0.5, opacity: 0 }}
+                      animate={{ scale: 1, opacity: 1 }}
+                      exit={{ scale: 0.5, opacity: 0 }}
+                      transition={{
+                        type: 'spring',
+                        stiffness: 500,
+                        damping: 20,
+                      }}
+                      className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-semibold rounded-full min-w-[18px] min-h-[18px] flex items-center justify-center px-1.5 py-0.5 shadow-md"
+                    >
+                      {cartCount}
+                    </motion.span>
+                  )}
+                </AnimatePresence>
+              </div>
+            </NavLink>
+            <NavLink to="/account">
+              <div className="bg-[#6eb356] p-2 rounded-full cursor-pointer">
+                <UserIcon color="#fff" />
+              </div>
+            </NavLink>
           </div>
         </div>
 
-        <div className="flex space-x-6 items-center">
-          <Search className="lg:hidden block cursor-pointer" />
-          <NavLink to="/cart">
-            <div className="bg-[#6eb356] p-2 relative rounded-full cursor-pointer">
-              <ShoppingBag color="#fff" />
-              <AnimatePresence>
-                {cartCount > 0 && (
-                  <motion.span
-                    key={cartCount}
-                    initial={{ scale: 0.5, opacity: 0 }}
-                    animate={{ scale: 1, opacity: 1 }}
-                    exit={{ scale: 0.5, opacity: 0 }}
-                    transition={{
-                      type: "spring",
-                      stiffness: 500,
-                      damping: 20,
-                    }}
-                    className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-semibold rounded-full min-w-[18px] min-h-[18px] flex items-center justify-center px-1.5 py-0.5 shadow-md"
-                  >
-                    {cartCount}
-                  </motion.span>
+        <AnimatePresence>
+          {searchOpen && (
+            <motion.div
+              initial={{ opacity: 0, y: -12 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -12 }}
+              transition={{ duration: 0.2 }}
+              className="absolute left-1/2 top-full z-30 lg:w-[60%] w-[90%] -translate-x-1/2 bg-white border border-[#ddd] rounded-2xl shadow-lg overflow-hidden"
+            >
+              <div className="hidden lg:flex items-center justify-between px-4 py-3 border-b border-gray-100">
+                <p className="text-sm text-gray-500">Search products</p>
+                <button
+                  type="button"
+                  onClick={() => setSearchOpen(false)}
+                  className="text-gray-500 hover:text-gray-700"
+                  aria-label="Close product search"
+                >
+                  <X size={20} />
+                </button>
+              </div>
+
+              <div className="lg:hidden flex items-center gap-3 p-4 border-b border-gray-100">
+                <div className="flex items-center flex-1 border border-[#ccc] rounded-lg px-3">
+                  <Search size={18} className="text-gray-500" />
+                  <input
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="Search for products..."
+                    className="w-full py-3 pl-3 outline-none"
+                    autoFocus
+                  />
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setSearchOpen(false)}
+                  className="text-gray-500"
+                  aria-label="Close product search"
+                >
+                  <X size={22} />
+                </button>
+              </div>
+
+              <div className="max-h-[360px] overflow-y-auto">
+                {searchLoading && (
+                  <p className="p-4 text-sm text-gray-500">
+                    Loading products...
+                  </p>
                 )}
-              </AnimatePresence>
-            </div>
-          </NavLink>
-          <NavLink to="/account">
-            <div className="bg-[#6eb356] p-2 rounded-full cursor-pointer">
-              <UserIcon color="#fff" />
-            </div>
-          </NavLink>
-        </div>
+
+                {!searchLoading && searchError && (
+                  <p className="p-4 text-sm text-red-500">{searchError}</p>
+                )}
+
+                {!searchLoading && !searchError && !normalizedQuery && (
+                  <p className="p-4 text-sm text-gray-500">
+                    Start typing to find a product instantly.
+                  </p>
+                )}
+
+                {!searchLoading &&
+                  !searchError &&
+                  normalizedQuery &&
+                  filteredProducts.length === 0 && (
+                    <p className="p-4 text-sm text-gray-500">
+                      No products matched &quot;{searchQuery.trim()}&quot;.
+                    </p>
+                  )}
+
+                {!searchLoading &&
+                  !searchError &&
+                  filteredProducts.map((product) => (
+                    <button
+                      key={product.id}
+                      type="button"
+                      onClick={() => handleSearchSelect(product.id)}
+                      className="w-full flex items-center gap-4 p-4 text-left border-b border-gray-100 last:border-b-0 hover:bg-gray-50 transition-colors"
+                    >
+                      <img
+                        src={product.image}
+                        alt={product.name}
+                        className="w-14 h-14 rounded-lg object-cover"
+                      />
+                      <div className="flex-1">
+                        <p className="font-medium text-gray-800">
+                          {product.name}
+                        </p>
+                        <p className="text-sm text-gray-500 capitalize">
+                          {product.type}
+                        </p>
+                      </div>
+                      <p className="font-semibold text-green-700">
+                        £{product.price}
+                      </p>
+                    </button>
+                  ))}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
 
       <AnimatePresence>
@@ -87,9 +301,9 @@ const Header = () => {
 
             <motion.div
               key="drawer"
-              initial={{ x: "-100%" }}
+              initial={{ x: '-100%' }}
               animate={{ x: 0 }}
-              exit={{ x: "-100%" }}
+              exit={{ x: '-100%' }}
               transition={{ type: "spring", stiffness: 120, damping: 20 }}
               className="fixed top-0 left-0 h-full w-[80%] sm:w-[60%] bg-white shadow-2xl z-50 flex flex-col"
             >

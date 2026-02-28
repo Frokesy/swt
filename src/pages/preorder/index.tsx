@@ -89,7 +89,7 @@ const PreOrder = () => {
       );
 
       await plunkClient.emails.send({
-        to: 'frokeslini@gmail.com',
+        to: 'ayanfeoluwaakindele24@gmail.com',
         subject: 'New Rehubot Order Received 📦',
         body: await adminEmailHtml,
       });

@@ -4,7 +4,8 @@ import TopNav from '../../components/defaults/TopNav';
 import { type ProductType } from '../../components/data/products';
 import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Heart, Eye, CheckCircle } from 'lucide-react';
+import { CheckCircle } from 'lucide-react';
+import ProductCard from '../../components/defaults/ProductCard';
 import { Pagination } from 'antd';
 import { set, get } from 'idb-keyval';
 import { useNavigate } from 'react-router-dom';
@@ -14,7 +15,6 @@ const DATABASE_ID = import.meta.env.VITE_DB_ID;
 const COLLECTION_ID = 'products';
 
 const ProductCatalogue = () => {
-  const [activeId, setActiveId] = useState<string | null>(null);
   const [liked, setLiked] = useState<string[]>([]);
   const [loadingId, setLoadingId] = useState<string | null>(null);
   const [products, setProducts] = useState<ProductType[]>([]);
@@ -187,87 +187,15 @@ const ProductCatalogue = () => {
           className="grid lg:grid-cols-4 grid-cols-2 gap-5 my-10"
         >
           {currentProducts.map((product) => (
-            <motion.div
+            <ProductCard
               key={product.id}
-              className="relative border border-[#ddd] rounded-lg p-3 flex flex-col space-y-3 bg-white overflow-hidden shadow-sm hover:shadow-md transition-shadow"
-              onMouseEnter={() => setActiveId(product.id)}
-              onMouseLeave={() => setActiveId(null)}
-            >
-              <div className="relative">
-                <img
-                  src={product.image}
-                  alt={product.name}
-                  className="w-full h-[160px] object-cover rounded-md"
-                />
-
-                <AnimatePresence>
-                  {activeId === product.id && (
-                    <motion.div
-                      className="absolute top-3 right-3 flex flex-col space-y-2"
-                      initial={{ opacity: 0, scale: 0.9 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      exit={{ opacity: 0, scale: 0.9 }}
-                      transition={{ duration: 0.3 }}
-                    >
-                      <motion.div
-                        className="bg-white p-2 rounded-full cursor-pointer shadow-sm"
-                        whileHover={{ scale: 1.15 }}
-                        whileTap={{ scale: 0.9 }}
-                        onClick={() => handleLike(product.id, product.name)}
-                      >
-                        <Heart
-                          size={20}
-                          className={`${
-                            liked.includes(product.id)
-                              ? 'fill-red-500 text-red-500'
-                              : 'text-gray-600'
-                          }`}
-                        />
-                      </motion.div>
-
-                      <motion.div
-                        className="bg-white p-2 rounded-full cursor-pointer shadow-sm"
-                        whileHover={{ scale: 1.15 }}
-                        whileTap={{ scale: 0.9 }}
-                        onClick={() => navigate(`/product/${product.id}`)}
-                      >
-                        <Eye size={20} className="text-gray-600" />
-                      </motion.div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
-
-              <h3 className="font-semibold text-sm sm:text-base">
-                {product.name}
-              </h3>
-              <p className="text-green-700 font-bold text-sm sm:text-base">
-                £{product.price}
-              </p>
-
-              <AnimatePresence>
-                {activeId === product.id && (
-                  <motion.button
-                    key="cart-btn"
-                    initial={{ opacity: 0, y: 30 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: 30 }}
-                    transition={{ duration: 0.4 }}
-                    onClick={() => handleAddToCart(product.id, product.name)}
-                    className="bg-[#6eb356] text-white py-2 rounded-lg hover:bg-[#5aa246] font-semibold flex items-center justify-center text-sm sm:text-base"
-                  >
-                    {loadingId === product.id ? (
-                      <motion.div
-                        className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"
-                        transition={{ repeat: Infinity, duration: 0.8 }}
-                      />
-                    ) : (
-                      'Add to Cart'
-                    )}
-                  </motion.button>
-                )}
-              </AnimatePresence>
-            </motion.div>
+              product={product}
+              liked={liked.includes(product.id)}
+              loading={loadingId === product.id}
+              onLike={handleLike}
+              onView={(id) => navigate(`/product/${id}`)}
+              onAddToCart={handleAddToCart}
+            />
           ))}
         </motion.div>
 

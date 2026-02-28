@@ -21,7 +21,6 @@ interface Preorder {
 const Preorders = ({ userId }: { userId: string }) => {
   const [preorders, setPreorders] = useState<Preorder[]>([]);
   const [loading, setLoading] = useState(true);
-  console.log(userId);
 
   useEffect(() => {
     const fetchPreorders = async () => {
