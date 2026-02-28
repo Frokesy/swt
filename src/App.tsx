@@ -17,7 +17,14 @@ import Success from './pages/checkout/success';
 import Cancel from './pages/checkout/cancel';
 import AdminLogin from './pages/admin/login';
 import AdminDashboard from './pages/admin/dashboard';
+import AdminProducts from './pages/admin/products';
+import CreateProduct from './pages/admin/products/create';
+import EditProduct from './pages/admin/products/edit';
 import ProtectedAdminRoute from './components/defaults/ProtectedAdminRoute';
+import AdminOrders from './pages/admin/orders';
+import OrderDetail from './pages/admin/orders/detail';
+import AdminPreorders from './pages/admin/preorders';
+import PreorderDetail from './pages/admin/preorders/detail';
 
 const App = () => {
   const router = createBrowserRouter([
@@ -88,6 +95,62 @@ const App = () => {
       element: (
         <ProtectedAdminRoute>
           <AdminDashboard />
+        </ProtectedAdminRoute>
+      ),
+    },
+    {
+      path: '/admin/products',
+      element: (
+        <ProtectedAdminRoute>
+          <AdminProducts />
+        </ProtectedAdminRoute>
+      ),
+    },
+    {
+      path: '/admin/products/create',
+      element: (
+        <ProtectedAdminRoute>
+          <CreateProduct />
+        </ProtectedAdminRoute>
+      ),
+    },
+    {
+      path: '/admin/products/:id',
+      element: (
+        <ProtectedAdminRoute>
+          <EditProduct />
+        </ProtectedAdminRoute>
+      ),
+    },
+    {
+      path: '/admin/orders',
+      element: (
+        <ProtectedAdminRoute>
+          <AdminOrders />
+        </ProtectedAdminRoute>
+      ),
+    },
+    {
+      path: '/admin/orders/:id',
+      element: (
+        <ProtectedAdminRoute>
+          <OrderDetail />
+        </ProtectedAdminRoute>
+      ),
+    },
+    {
+      path: '/admin/preorders',
+      element: (
+        <ProtectedAdminRoute>
+          <AdminPreorders />
+        </ProtectedAdminRoute>
+      ),
+    },
+    {
+      path: '/admin/preorders/:id',
+      element: (
+        <ProtectedAdminRoute>
+          <PreorderDetail />
         </ProtectedAdminRoute>
       ),
     },

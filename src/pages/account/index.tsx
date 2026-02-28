@@ -68,7 +68,10 @@ const MyAccount = () => {
         <p className="text-gray-600 mb-3">
           You need to be logged in to view your account.
         </p>
-        <a href="/" className="text-green-700 font-medium hover:underline">
+        <a
+          href="/auth/login"
+          className="text-green-700 font-medium hover:underline"
+        >
           Go to Login
         </a>
       </div>

@@ -52,12 +52,12 @@ const Success = () => {
             items: [JSON.stringify(normalizedItems)],
             totalPrice,
             deliveryFee: Math.round(deliveryFee * 100),
-            status: 'Paid',
+            status: 'Pending',
             orderId: Math.random().toString(16).slice(2, 10),
           }
         );
 
-        console.log('✅ Order saved:', order);
+        console.log('✅ Order saved:', order.$createdAt);
 
         const userEmailHtml = render(
           <OrderConfirmedUserTemplate
@@ -83,7 +83,7 @@ const Success = () => {
         );
 
         await plunkClient.emails.send({
-          to: 'frokeslini@gmail.com',
+          to: 'ayanfeoluwaakindele24@gmail.com',
           subject: 'New Rehubot Order Received 📦',
           body: await adminEmailHtml,
         });

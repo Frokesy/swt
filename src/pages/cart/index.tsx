@@ -1,4 +1,5 @@
-import { useState } from 'react';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { useState, useEffect } from 'react';
 import { Trash2, Plus, Minus, CheckCircle, XCircle } from 'lucide-react';
 import Ad from '../../components/defaults/Ad';
 import Header from '../../components/defaults/Header';
@@ -7,6 +8,9 @@ import { motion, AnimatePresence } from 'framer-motion';
 import type { ProductType } from '../../components/data/products';
 import { useCart } from '../../hooks/useCart';
 import { useNavigate } from 'react-router-dom';
+import { account, databases } from '../../lib/appwrite';
+import { Query } from 'appwrite';
+const DATABASE_ID = import.meta.env.VITE_DB_ID;
 
 const Carts = () => {
   const { cartItems, increment, decrement, removeFromCart, totalPrice } =
@@ -16,6 +20,9 @@ const Carts = () => {
   const [showRemoveModal, setShowRemoveModal] = useState(false);
   const [itemToRemove, setItemToRemove] = useState<ProductType | null>(null);
   const [toast, setToast] = useState(false);
+  const [user, setUser] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+
   const navigate = useNavigate();
 
   const confirmRemove = (item: ProductType) => {
@@ -38,6 +45,48 @@ const Carts = () => {
       setToast(false);
     }, 2000);
   };
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const accountData = await account.get();
+        const userDoc = await databases.listDocuments(DATABASE_ID, 'users', [
+          Query.equal('userId', accountData.$id),
+        ]);
+
+        setUser(userDoc.documents[0]);
+      } catch (error) {
+        console.error('Error fetching user:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUser();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center min-h-[60vh] text-gray-500">
+        Loading your cart...
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div className="flex flex-col justify-center items-center min-h-[60vh] text-center">
+        <p className="text-gray-600 mb-3">
+          You need to be logged in to view your account.
+        </p>
+        <a
+          href="/auth/login"
+          className="text-green-700 font-medium hover:underline"
+        >
+          Go to Login
+        </a>
+      </div>
+    );
+  }
   return (
     <div>
       <Ad />
