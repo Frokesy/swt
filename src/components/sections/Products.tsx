@@ -39,6 +39,9 @@ const Products = () => {
       }
 
       await set('likedItems', updatedLikes);
+      try {
+        window.dispatchEvent(new Event('likedItemsChanged'));
+      } catch {}
 
       setLiked(updatedLikes.map((item: ProductType) => item.id));
 

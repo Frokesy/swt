@@ -5,6 +5,7 @@ import DeliveryInfo from './pages/delivery-info';
 import RegularSales from './pages/regular-sales';
 import ProductCatalogue from './pages/product-catalog';
 import PreOrder from './pages/preorder';
+import FavoritesPage from './pages/favorites';
 import MyAccount from './pages/account';
 import Carts from './pages/cart';
 import ProductDetailsPage from './pages/product-details';
@@ -28,6 +29,7 @@ const App = () => {
     },
     { path: '/delivery-info', element: <DeliveryInfo /> },
     { path: '/regular-sales', element: <RegularSales /> },
+    { path: '/favorites', element: <FavoritesPage /> },
     { path: '/product-catalogue', element: <ProductCatalogue /> },
     {
       path: '/product/:id',

@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
-import { Menu, Search, ShoppingBag, UserIcon, X } from 'lucide-react';
+import { Menu, Search, ShoppingBag, UserIcon, X, Heart } from 'lucide-react';
+import { get } from 'idb-keyval';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useCart } from '../../hooks/useCart';
@@ -27,6 +28,7 @@ const Header = () => {
   const [products, setProducts] = useState<ProductType[]>([]);
   const [searchLoading, setSearchLoading] = useState(true);
   const [searchError, setSearchError] = useState('');
+  const [likedCount, setLikedCount] = useState<number>(0);
   const searchContainerRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -71,6 +73,35 @@ const Header = () => {
 
     return () => {
       isMounted = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    let mounted = true;
+    const loadLikes = async () => {
+      try {
+        const stored = (await get('likedItems')) || [];
+        if (!mounted) return;
+        setLikedCount(Array.isArray(stored) ? stored.length : 0);
+      } catch (err) {
+        console.error('Failed to load liked items count:', err);
+      }
+    };
+
+    loadLikes();
+
+    const onFocus = () => {
+      loadLikes();
+    };
+
+    const onLikedChange = () => loadLikes();
+
+    window.addEventListener('focus', onFocus);
+    window.addEventListener('likedItemsChanged', onLikedChange);
+    return () => {
+      mounted = false;
+      window.removeEventListener('focus', onFocus);
+      window.removeEventListener('likedItemsChanged', onLikedChange);
     };
   }, []);
 
@@ -149,7 +180,7 @@ const Header = () => {
             </button>
           </div>
 
-          <div className="flex space-x-6 items-center">
+          <div className="flex lg:space-x-6 space-x-3 items-center">
             <Search
               className="lg:hidden block cursor-pointer"
               onClick={handleSearchToggle}
@@ -172,6 +203,29 @@ const Header = () => {
                       className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-semibold rounded-full min-w-[18px] min-h-[18px] flex items-center justify-center px-1.5 py-0.5 shadow-md"
                     >
                       {cartCount}
+                    </motion.span>
+                  )}
+                </AnimatePresence>
+              </div>
+            </NavLink>
+            <NavLink to="/favorites">
+              <div className="bg-[#6eb356] p-2 relative rounded-full cursor-pointer">
+                <Heart color="#fff" />
+                <AnimatePresence>
+                  {likedCount > 0 && (
+                    <motion.span
+                      key={likedCount}
+                      initial={{ scale: 0.5, opacity: 0 }}
+                      animate={{ scale: 1, opacity: 1 }}
+                      exit={{ scale: 0.5, opacity: 0 }}
+                      transition={{
+                        type: 'spring',
+                        stiffness: 500,
+                        damping: 20,
+                      }}
+                      className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-semibold rounded-full min-w-[18px] min-h-[18px] flex items-center justify-center px-1.5 py-0.5 shadow-md"
+                    >
+                      {likedCount}
                     </motion.span>
                   )}
                 </AnimatePresence>
@@ -304,7 +358,7 @@ const Header = () => {
               initial={{ x: '-100%' }}
               animate={{ x: 0 }}
               exit={{ x: '-100%' }}
-              transition={{ type: "spring", stiffness: 120, damping: 20 }}
+              transition={{ type: 'spring', stiffness: 120, damping: 20 }}
               className="fixed top-0 left-0 h-full w-[80%] sm:w-[60%] bg-white shadow-2xl z-50 flex flex-col"
             >
               <div className="flex justify-between items-center p-5 border-b border-gray-200">
@@ -327,8 +381,8 @@ const Header = () => {
                     className={({ isActive }) =>
                       `text-lg font-medium py-2 px-3 rounded-lg transition-all ${
                         isActive
-                          ? "text-green-700 bg-green-100"
-                          : "text-gray-700 hover:bg-gray-100"
+                          ? 'text-green-700 bg-green-100'
+                          : 'text-gray-700 hover:bg-gray-100'
                       }`
                     }
                   >

@@ -67,6 +67,10 @@ const ProductCatalogue = () => {
       }
 
       await set('likedItems', updatedLikes);
+      // notify other parts of the app that liked items changed
+      try {
+        window.dispatchEvent(new Event('likedItemsChanged'));
+      } catch {}
 
       setLiked(updatedLikes.map((item: ProductType) => item.id));
 
