@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import type { ProductType } from '../data/products';
+import { Upload } from 'lucide-react';
 
 interface Props {
   initial?: Partial<ProductType>;
@@ -55,181 +56,247 @@ const ProductForm = ({ initial = {}, onSubmit, submitting }: Props) => {
     await onSubmit(payload);
   };
 
+  const inputClass =
+    'w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition';
+
   return (
     <form
       onSubmit={handleSubmit}
-      className="space-y-4 bg-white p-6 rounded-lg border border-gray-100"
+      className="space-y-6 bg-white p-8 rounded-xl shadow-sm border border-gray-200"
     >
+      {/* Basic Info Section */}
+      <div className="pb-6 border-b border-gray-200">
+        <h3 className="text-lg font-semibold text-gray-800 mb-4">
+          Basic Information
+        </h3>
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-2">
+              Product Name *
+            </label>
+            <input
+              required
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="e.g., Artisan Sourdough Bread"
+              className={inputClass}
+            />
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                Price (₦) *
+              </label>
+              <input
+                required
+                type="number"
+                step="0.01"
+                value={price}
+                onChange={(e) => setPrice(Number(e.target.value))}
+                placeholder="0.00"
+                className={inputClass}
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                Quantity in Stock *
+              </label>
+              <input
+                required
+                type="number"
+                value={quantity}
+                onChange={(e) => setQuantity(Number(e.target.value))}
+                placeholder="0"
+                className={inputClass}
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                Category
+              </label>
+              <input
+                value={category}
+                onChange={(e) => setCategory(e.target.value)}
+                placeholder="e.g., Bakery"
+                className={inputClass}
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                Type
+              </label>
+              <input
+                value={type}
+                onChange={(e) => setType(e.target.value)}
+                placeholder="e.g., Bread"
+                className={inputClass}
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Description & Images Section */}
+      <div className="pb-6 border-b border-gray-200">
+        <h3 className="text-lg font-semibold text-gray-800 mb-4">
+          Description & Images
+        </h3>
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-2">
+              Description
+            </label>
+            <textarea
+              value={desc}
+              onChange={(e) => setDesc(e.target.value)}
+              placeholder="Describe your product..."
+              className={`${inputClass} resize-none`}
+              rows={4}
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-2">
+              Primary Image URL
+            </label>
+            <input
+              value={image}
+              onChange={(e) => setImage(e.target.value)}
+              placeholder="https://example.com/image.jpg"
+              className={inputClass}
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-2">
+              Additional Images
+            </label>
+            <input
+              value={images}
+              onChange={(e) => setImages(e.target.value)}
+              placeholder="https://example.com/img1.jpg, https://example.com/img2.jpg"
+              className={inputClass}
+            />
+            <p className="text-xs text-gray-600 mt-2">
+              Paste comma-separated image URLs or upload files below
+            </p>
+          </div>
+
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-2">
+              Upload Images
+            </label>
+            <label className="flex items-center justify-center gap-2 w-full px-4 py-8 border-2 border-dashed border-green-300 rounded-lg cursor-pointer hover:bg-green-50 transition">
+              <Upload size={18} className="text-green-600" />
+              <span className="text-sm text-gray-600">
+                Click to upload or drag and drop
+              </span>
+              <input
+                type="file"
+                multiple
+                accept="image/*"
+                onChange={(e) =>
+                  setImageFiles(
+                    e.target.files ? Array.from(e.target.files) : null
+                  )
+                }
+                className="hidden"
+              />
+            </label>
+            {imageFiles && imageFiles.length > 0 && (
+              <p className="text-xs text-green-600 mt-2">
+                ✓ {imageFiles.length} file(s) selected
+              </p>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Additional Details Section */}
+      <div className="pb-6 border-b border-gray-200">
+        <h3 className="text-lg font-semibold text-gray-800 mb-4">
+          Additional Details
+        </h3>
+        <div className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                SKU
+              </label>
+              <input
+                value={sku}
+                onChange={(e) => setSku(e.target.value)}
+                placeholder="e.g., SKU-001"
+                className={inputClass}
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                Weight
+              </label>
+              <input
+                value={weight}
+                onChange={(e) => setWeight(e.target.value)}
+                placeholder="e.g., 500g"
+                className={inputClass}
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                Origin
+              </label>
+              <input
+                value={origin}
+                onChange={(e) => setOrigin(e.target.value)}
+                placeholder="e.g., Nigeria"
+                className={inputClass}
+              />
+            </div>
+          </div>
+
+          <div className="flex items-end gap-4">
+            <div className="flex-1">
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                Best Before Date
+              </label>
+              <input
+                type="date"
+                value={bestBefore}
+                onChange={(e) => setBestBefore(e.target.value)}
+                className={inputClass}
+              />
+            </div>
+            <div className="flex items-center gap-3 pb-1">
+              <input
+                id="inStock"
+                type="checkbox"
+                checked={inStock}
+                onChange={(e) => setInStock(e.target.checked)}
+                className="w-4 h-4 rounded border-gray-300 text-green-600 cursor-pointer"
+              />
+              <label
+                htmlFor="inStock"
+                className="text-sm font-medium text-gray-700 cursor-pointer"
+              >
+                In Stock
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Submit Button */}
       <div>
-        <label className="block text-sm font-medium text-gray-700">Name</label>
-        <input
-          required
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          className="mt-1 w-full p-2 border rounded-lg"
-        />
-      </div>
-
-      <div className="grid grid-cols-2 gap-4">
-        <div>
-          <label className="block text-sm font-medium text-gray-700">
-            Price
-          </label>
-          <input
-            required
-            type="number"
-            step="0.01"
-            value={price}
-            onChange={(e) => setPrice(Number(e.target.value))}
-            className="mt-1 w-full p-2 border rounded-lg"
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700">
-            Quantity
-          </label>
-          <input
-            required
-            type="number"
-            value={quantity}
-            onChange={(e) => setQuantity(Number(e.target.value))}
-            className="mt-1 w-full p-2 border rounded-lg"
-          />
-        </div>
-      </div>
-
-      <div className="grid grid-cols-2 gap-4">
-        <div>
-          <label className="block text-sm font-medium text-gray-700">
-            Category
-          </label>
-          <input
-            value={category}
-            onChange={(e) => setCategory(e.target.value)}
-            className="mt-1 w-full p-2 border rounded-lg"
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700">
-            Type
-          </label>
-          <input
-            value={type}
-            onChange={(e) => setType(e.target.value)}
-            className="mt-1 w-full p-2 border rounded-lg"
-          />
-        </div>
-      </div>
-
-      <div>
-        <label className="block text-sm font-medium text-gray-700">
-          Image (URL)
-        </label>
-        <input
-          value={image}
-          onChange={(e) => setImage(e.target.value)}
-          className="mt-1 w-full p-2 border rounded-lg"
-        />
-      </div>
-
-      <div>
-        <label className="block text-sm font-medium text-gray-700">
-          Images (comma separated)
-        </label>
-        <input
-          value={images}
-          onChange={(e) => setImages(e.target.value)}
-          className="mt-1 w-full p-2 border rounded-lg"
-        />
-        <p className="text-xs text-gray-500 mt-2">
-          Or upload files below (they will be uploaded to Cloudinary)
-        </p>
-        <input
-          type="file"
-          multiple
-          accept="image/*"
-          onChange={(e) =>
-            setImageFiles(e.target.files ? Array.from(e.target.files) : null)
-          }
-          className="mt-2"
-        />
-      </div>
-
-      <div>
-        <label className="block text-sm font-medium text-gray-700">
-          Description
-        </label>
-        <textarea
-          value={desc}
-          onChange={(e) => setDesc(e.target.value)}
-          className="mt-1 w-full p-2 border rounded-lg"
-          rows={4}
-        />
-      </div>
-
-      <div className="grid grid-cols-3 gap-4">
-        <div>
-          <label className="block text-sm font-medium text-gray-700">SKU</label>
-          <input
-            value={sku}
-            onChange={(e) => setSku(e.target.value)}
-            className="mt-1 w-full p-2 border rounded-lg"
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700">
-            Weight
-          </label>
-          <input
-            value={weight}
-            onChange={(e) => setWeight(e.target.value)}
-            className="mt-1 w-full p-2 border rounded-lg"
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700">
-            Origin
-          </label>
-          <input
-            value={origin}
-            onChange={(e) => setOrigin(e.target.value)}
-            className="mt-1 w-full p-2 border rounded-lg"
-          />
-        </div>
-      </div>
-
-      <div className="grid grid-cols-2 gap-4 items-end">
-        <div>
-          <label className="block text-sm font-medium text-gray-700">
-            Best Before
-          </label>
-          <input
-            type="date"
-            value={bestBefore}
-            onChange={(e) => setBestBefore(e.target.value)}
-            className="mt-1 w-full p-2 border rounded-lg"
-          />
-        </div>
-        <div className="flex items-center gap-3">
-          <input
-            id="inStock"
-            type="checkbox"
-            checked={inStock}
-            onChange={(e) => setInStock(e.target.checked)}
-          />
-          <label htmlFor="inStock" className="text-sm">
-            In stock
-          </label>
-        </div>
-      </div>
-
-      <div className="flex items-center justify-end">
         <button
           type="submit"
           disabled={submitting}
-          className={`px-4 py-2 rounded-lg text-white ${submitting ? 'bg-gray-400' : 'bg-green-700 hover:bg-green-800'}`}
+          className="w-full px-6 py-3 bg-green-700 text-white font-semibold rounded-lg hover:bg-green-800 transition disabled:bg-gray-400 disabled:cursor-not-allowed shadow-md hover:shadow-lg"
         >
-          {submitting ? 'Saving...' : 'Save Product'}
+          {submitting ? 'Saving Product...' : 'Save Product'}
         </button>
       </div>
     </form>

@@ -25,6 +25,8 @@ import AdminOrders from './pages/admin/orders';
 import OrderDetail from './pages/admin/orders/detail';
 import AdminPreorders from './pages/admin/preorders';
 import PreorderDetail from './pages/admin/preorders/detail';
+import AdminCustomers from './pages/admin/customers';
+import CustomerDetail from './pages/admin/customers/detail';
 
 const App = () => {
   const router = createBrowserRouter([
@@ -151,6 +153,22 @@ const App = () => {
       element: (
         <ProtectedAdminRoute>
           <PreorderDetail />
+        </ProtectedAdminRoute>
+      ),
+    },
+    {
+      path: '/admin/customers',
+      element: (
+        <ProtectedAdminRoute>
+          <AdminCustomers />
+        </ProtectedAdminRoute>
+      ),
+    },
+    {
+      path: '/admin/customers/:id',
+      element: (
+        <ProtectedAdminRoute>
+          <CustomerDetail />
         </ProtectedAdminRoute>
       ),
     },

@@ -6,6 +6,8 @@ import { databases, client } from '../../../lib/appwrite';
 import { ID, Functions } from 'appwrite';
 import { useNavigate } from 'react-router-dom';
 import uploadToCloudinary from '../../../lib/cloudinary';
+import AlertModal from '../../../components/modals/AlertModal';
+import type { AlertType } from '../../../components/modals/AlertModal';
 
 const DATABASE_ID = import.meta.env.VITE_DB_ID;
 const COLLECTION_ID = 'products';
@@ -13,6 +15,13 @@ const COLLECTION_ID = 'products';
 const CreateProduct = () => {
   const [submitting, setSubmitting] = useState(false);
   const navigate = useNavigate();
+
+  const [alertModal, setAlertModal] = useState<{
+    isOpen: boolean;
+    title: string;
+    message: string;
+    type: AlertType;
+  }>({ isOpen: false, title: '', message: '', type: 'info' });
 
   const handleCreate = async (payload: any) => {
     try {
@@ -25,7 +34,12 @@ const CreateProduct = () => {
             uploads.push(url);
           } catch (err) {
             console.error('Image upload failed', err);
-            alert('Image upload failed. Aborting.');
+            setAlertModal({
+              isOpen: true,
+              title: 'Upload Failed',
+              message: 'Image upload failed. Please try again.',
+              type: 'error',
+            });
             setSubmitting(false);
             return;
           }
@@ -65,7 +79,12 @@ const CreateProduct = () => {
       navigate('/admin/products');
     } catch (err) {
       console.error('Create product failed', err);
-      alert('Failed to create product');
+      setAlertModal({
+        isOpen: true,
+        title: 'Error',
+        message: 'Failed to create product. Please try again.',
+        type: 'error',
+      });
     } finally {
       setSubmitting(false);
     }
@@ -73,8 +92,18 @@ const CreateProduct = () => {
 
   return (
     <AdminLayout>
-      <h1 className="text-2xl font-semibold mb-4">Create Product</h1>
+      <h1 className="text-3xl font-bold text-gray-800 mb-6">
+        Create New Product
+      </h1>
       <ProductForm onSubmit={handleCreate} submitting={submitting} />
+
+      <AlertModal
+        isOpen={alertModal.isOpen}
+        onClose={() => setAlertModal({ ...alertModal, isOpen: false })}
+        title={alertModal.title}
+        message={alertModal.message}
+        type={alertModal.type}
+      />
     </AdminLayout>
   );
 };
