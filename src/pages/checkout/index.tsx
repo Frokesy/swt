@@ -109,7 +109,7 @@ const Checkout = () => {
         name: item.name,
         price: item.price,
         quantity: item.quantity,
-        currency: 'usd',
+        currency: 'gbp',
       }));
 
       const payload = {

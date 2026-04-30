@@ -141,7 +141,7 @@ const Success = () => {
   if (loading)
     return (
       <div className="flex items-center justify-center h-screen text-gray-700">
-        Processing your order...
+        Processing your order, please do not refresh or go back...
       </div>
     );
 
