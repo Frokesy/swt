@@ -10,13 +10,13 @@ const Home = () => {
       <Ad />
       <Header />
       <TopNav />
-      <div className="lg:w-[60%] w-[90%] mx-auto my-10">
+      {/* <div className="lg:w-[60%] w-[90%] mx-auto my-10">
         <img
           src="/assets/ad.png"
           alt="ad"
           className="w-[100%] h-[200px] lg:h-[390px]"
         />
-      </div>
+      </div> */}
       <Products />
       <Footer />
     </div>

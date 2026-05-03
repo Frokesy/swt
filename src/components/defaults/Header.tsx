@@ -363,7 +363,7 @@ const Header = () => {
             >
               <div className="flex justify-between items-center p-5 border-b border-gray-200">
                 <h2 className="text-green-700 text-2xl font-semibold italic">
-                  Divwis
+                  Rehubot
                 </h2>
                 <X
                   size={26}
@@ -393,7 +393,7 @@ const Header = () => {
 
               <div className="mt-auto p-5 border-t border-gray-200">
                 <p className="text-sm text-gray-500">
-                  © {new Date().getFullYear()} Divwis. All rights reserved.
+                  © {new Date().getFullYear()} Rehubot. All rights reserved.
                 </p>
               </div>
             </motion.div>

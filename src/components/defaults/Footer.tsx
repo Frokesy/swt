@@ -14,9 +14,9 @@ const Footer = () => {
       <div className="border-b border-[#404040] mb-10 w-[80vw] mx-auto"></div>
       <div className="lg:w-[80vw] w-[90vw] mx-auto grid lg:grid-cols-2">
         <div className="space-y-4">
-          <h2 className="text-[34px] font-semibold">Divwis</h2>
+          <h2 className="text-[34px] font-semibold">Rehubot</h2>
           <p className="text-[14px]">
-            © {currentYear} Divwis Limited. All rights reserved
+            © {currentYear} Rehubot Limited. All rights reserved
           </p>
           <div className="flex items-center space-x-[16px]">
             <InstagramIcon />
@@ -49,7 +49,7 @@ const Footer = () => {
             <ul className="space-y-3 text-[15px]">
               <li className="flex items-center space-x-3">
                 <HelpCircleIcon />
-                <p>support@divwisglobals.com</p>
+                <p>support@rehubot.com</p>
               </li>
               <li className="flex items-center space-x-3">
                 <HeadphonesIcon />
