@@ -6,6 +6,7 @@ import { ID } from 'appwrite';
 import { useCart } from '../../hooks/useCart';
 import { motion } from 'framer-motion';
 import Plunk from '@plunk/node';
+import { getDeliveryFee } from '../../lib/deliverySettings';
 import { render } from '@react-email/render';
 import { Slide, toast } from 'react-toastify';
 import { OrderConfirmedUserTemplate } from '../../components/email-templates/OrderConfirmedUserTemplate';
@@ -22,8 +23,8 @@ const Success = () => {
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [success, setSuccess] = useState(false);
+  const [deliveryFee, setDeliveryFee] = useState<number>(5.99);
   const hasProcessed = useRef(false);
-  const deliveryFee = 5.99;
   const totalWithDelivery = totalPrice + deliveryFee;
 
   useEffect(() => {
@@ -34,6 +35,10 @@ const Success = () => {
       try {
         const currentUser = await account.get();
         setUser(currentUser);
+
+        // Fetch delivery fee
+        const fee = await getDeliveryFee();
+        setDeliveryFee(fee);
 
         const normalizedItems = cartItems.map((item) => ({
           id: item.id,

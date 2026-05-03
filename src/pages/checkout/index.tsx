@@ -11,6 +11,7 @@ import { account, databases, client } from '../../lib/appwrite';
 import { ID, Query, Functions } from 'appwrite';
 import Toast from '../../components/defaults/Toast';
 import ErrToast from '../../components/defaults/ErrToast';
+import { getDeliveryFee } from '../../lib/deliverySettings';
 
 const DATABASE_ID = import.meta.env.VITE_DB_ID;
 const DELIVERY_COLLECTION_ID = 'deliveryAddresses';
@@ -23,15 +24,15 @@ const Checkout = () => {
   const [addressDocId, setAddressDocId] = useState<string | null>(null);
   const [hasAddress, setHasAddress] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [deliveryFee, setDeliveryFee] = useState<number>(5.99);
   const [toast, setToast] = useState<string | null>(null);
   const [errToast, setErrToast] = useState<string | null>(null);
   const functions = new Functions(client);
 
-  const deliveryFee = 5.99;
-
   useEffect(() => {
-    const fetchAddress = async () => {
+    const fetchData = async () => {
       try {
+        // Fetch user and address
         const user = await account.get();
         setUserId(user.$id);
 
@@ -47,14 +48,18 @@ const Checkout = () => {
           setAddressDocId(doc.$id);
           setHasAddress(true);
         }
+
+        // Fetch delivery fee
+        const fee = await getDeliveryFee();
+        setDeliveryFee(fee);
       } catch (err) {
-        console.error('Error fetching address:', err);
+        console.error('Error fetching checkout data:', err);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchAddress();
+    fetchData();
   }, []);
 
   const handleAddressSave = async () => {
