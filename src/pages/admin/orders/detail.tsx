@@ -88,7 +88,7 @@ const OrderDetail = () => {
                 </div>
               </div>
               <div className="ml-auto font-semibold">
-                ${(it.price ?? 0).toFixed(2)}
+                £{(it.price ?? 0).toFixed(2)}
               </div>
             </div>
           ))}
@@ -97,7 +97,7 @@ const OrderDetail = () => {
 
       <div className="bg-white border rounded-lg p-6">
         <h2 className="font-semibold mb-2">Summary</h2>
-        <p>Total: ${((order.totalPrice ?? 0) / 100).toFixed(2)}</p>
+        <p>Total: £{((order.totalPrice ?? 0) / 100).toFixed(2)}</p>
         <p>Status: {order.status}</p>
         {order.tracking && <p>Tracking: {order.tracking}</p>}
       </div>

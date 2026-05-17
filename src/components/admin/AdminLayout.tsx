@@ -7,12 +7,11 @@ import {
   ShoppingCart,
   Package,
   Users,
-  Settings,
   LogOut,
   Menu,
   X,
   DollarSign,
-  Percent,
+  MessageSquare,
 } from 'lucide-react';
 import { useAdmin } from '../../hooks/useAdmin';
 
@@ -30,9 +29,14 @@ const navItems: NavItem[] = [
     path: '/admin/dashboard',
   },
   { label: 'Products', icon: <Box size={20} />, path: '/admin/products' },
-  { label: 'Inventory', icon: <Package size={20} />, path: '/admin/inventory' },
   { label: 'Orders', icon: <ShoppingCart size={20} />, path: '/admin/orders' },
   { label: 'Preorders', icon: <Package size={20} />, path: '/admin/preorders' },
+  {
+    label: 'Reviews',
+    icon: <MessageSquare size={20} />,
+    path: '/admin/reviews',
+    requiredRole: 'manager',
+  },
   {
     label: 'Customers',
     icon: <Users size={20} />,
@@ -40,22 +44,10 @@ const navItems: NavItem[] = [
     requiredRole: 'manager',
   },
   {
-    label: 'Promotions',
-    icon: <Percent size={20} />,
-    path: '/admin/promotions',
-    requiredRole: 'manager',
-  },
-  {
-    label: 'Delivery',
+    label: 'Delivery & Notices',
     icon: <DollarSign size={20} />,
     path: '/admin/delivery',
     requiredRole: 'manager',
-  },
-  {
-    label: 'Settings',
-    icon: <Settings size={20} />,
-    path: '/admin/settings',
-    requiredRole: 'admin',
   },
 ];
 

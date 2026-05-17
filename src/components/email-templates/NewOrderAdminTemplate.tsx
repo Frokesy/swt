@@ -47,12 +47,12 @@ export const NewOrderAdminTemplate: FC<OrderAdminTemplateProps> = ({
           <ul style={{ paddingLeft: '20px' }}>
             {items.map((item, index) => (
               <li key={index}>
-                {item.name} × {item.quantity} — ${item.price.toFixed(2)}
+                {item.name} × {item.quantity} — £{item.price.toFixed(2)}
               </li>
             ))}
           </ul>
 
-          <Text style={{ fontWeight: 'bold' }}>Total: ${total.toFixed(2)}</Text>
+          <Text style={{ fontWeight: 'bold' }}>Total: £{total.toFixed(2)}</Text>
         </Section>
 
         <Section style={styles.footer}>

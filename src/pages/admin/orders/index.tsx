@@ -144,7 +144,7 @@ const AdminOrders: FC = () => {
                   <tr key={id} className="border-b hover:bg-gray-50">
                     <td className="p-3">{o.orderId || id}</td>
                     <td className="p-3">{o.email || o.userId || '—'}</td>
-                    <td className="p-3">${(o.totalPrice ?? 0).toFixed(2)}</td>
+                    <td className="p-3">£{(o.totalPrice ?? 0).toFixed(2)}</td>
                     <td className="p-3">{o.status || 'Pending'}</td>
                     <td className="p-3">
                       {new Date(

@@ -1,5 +1,15 @@
 import { useEffect, useRef, useState } from 'react';
-import { Menu, Search, ShoppingBag, UserIcon, X, Heart } from 'lucide-react';
+import {
+  Heart,
+  Menu,
+  MoreHorizontal,
+  Moon,
+  Search,
+  ShoppingBag,
+  Sun,
+  UserIcon,
+  X,
+} from 'lucide-react';
 import { get } from 'idb-keyval';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
@@ -27,7 +37,31 @@ const Header = () => {
   const [searchLoading, setSearchLoading] = useState(true);
   const [searchError, setSearchError] = useState('');
   const [likedCount, setLikedCount] = useState<number>(0);
+  const [darkMode, setDarkMode] = useState(false);
+  const [mobileActionsOpen, setMobileActionsOpen] = useState(false);
   const searchContainerRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    const savedTheme = localStorage.getItem('theme');
+    const prefersDark = window.matchMedia?.(
+      '(prefers-color-scheme: dark)'
+    ).matches;
+    const shouldUseDark = savedTheme
+      ? savedTheme === 'dark'
+      : Boolean(prefersDark);
+
+    document.documentElement.classList.toggle('dark', shouldUseDark);
+    setDarkMode(shouldUseDark);
+  }, []);
+
+  const toggleTheme = () => {
+    setDarkMode((current) => {
+      const next = !current;
+      document.documentElement.classList.toggle('dark', next);
+      localStorage.setItem('theme', next ? 'dark' : 'light');
+      return next;
+    });
+  };
 
   useEffect(() => {
     let isMounted = true;
@@ -132,17 +166,21 @@ const Header = () => {
   return (
     <>
       <div className="relative" ref={searchContainerRef}>
-        <div className="lg:w-[60%] w-[90%] mx-auto lg:my-10 my-4 flex justify-between items-center gap-4">
-          <Menu
-            className="lg:hidden block cursor-pointer"
+        <div className="lg:w-[70%] w-[92%] mx-auto lg:my-8 my-4 grid grid-cols-[auto_1fr_auto] items-center gap-3">
+          <button
+            type="button"
+            className="lg:hidden rounded-full border border-gray-200 p-2"
             onClick={() => setDrawerOpen(true)}
-          />
+            aria-label="Open menu"
+          >
+            <Menu size={22} />
+          </button>
 
           <h2 className="text-green-700 lg:text-[44px] text-[30px] italic font-bold">
             Rehubot
           </h2>
 
-          <div className="lg:flex hidden w-[60%] border border-[#ccc] pl-3 rounded-lg overflow-hidden">
+          <div className="lg:flex hidden min-w-0 border border-[#ccc] pl-3 rounded-lg overflow-hidden">
             <input
               type="text"
               value={searchQuery}
@@ -152,26 +190,56 @@ const Header = () => {
                 setSearchQuery(e.target.value);
               }}
               placeholder="Search for products..."
-              className="outline-none border-none w-[90%] pr-4"
+              className="outline-none border-none flex-1 pr-4 bg-transparent"
             />
             <button
               type="button"
               onClick={handleSearchToggle}
-              className="bg-green-700 p-3 w-[10%] flex items-center justify-center cursor-pointer"
+              className="bg-green-700 px-4 py-3 flex items-center justify-center cursor-pointer"
               aria-label="Toggle product search"
             >
               <Search color="#fff" />
             </button>
           </div>
 
-          <div className="flex lg:space-x-6 space-x-3 items-center">
-            <Search
-              className="lg:hidden block cursor-pointer"
+          <div className="relative flex gap-2 items-center justify-end">
+            <button
+              type="button"
+              onClick={() => setMobileActionsOpen((open) => !open)}
+              className="lg:hidden relative rounded-full border border-green-700 px-3 py-2 text-green-700 flex items-center gap-1"
+              aria-label="Open quick actions"
+              aria-expanded={mobileActionsOpen}
+            >
+              <MoreHorizontal size={20} />
+              <span className="text-[11px] font-semibold leading-none">
+                Click to expand
+              </span>
+            </button>
+
+            <div className="hidden lg:flex gap-2 items-center">
+            <button
+              type="button"
+              onClick={toggleTheme}
+              className="rounded-full border border-gray-200 p-2 cursor-pointer hover:border-green-700"
+              aria-label={darkMode ? 'Switch to light mode' : 'Switch to dark mode'}
+            >
+              {darkMode ? (
+                <Sun className="text-green-700" size={20} />
+              ) : (
+                <Moon className="text-green-700" size={20} />
+              )}
+            </button>
+            <button
+              type="button"
+              className="lg:hidden rounded-full border border-gray-200 p-2"
               onClick={handleSearchToggle}
-            />
+              aria-label="Open search"
+            >
+              <Search size={20} className="text-green-700" />
+            </button>
             <NavLink to="/cart">
-              <div className="bg-green-700 p-2 relative rounded-full cursor-pointer">
-                <ShoppingBag color="#fff" />
+              <div className="border border-gray-200 p-2 relative rounded-full cursor-pointer hover:border-green-700">
+                <ShoppingBag className="text-green-700" size={20} />
                 <AnimatePresence>
                   {cartCount > 0 && (
                     <motion.span
@@ -193,8 +261,8 @@ const Header = () => {
               </div>
             </NavLink>
             <NavLink to="/favorites">
-              <div className="bg-green-700 p-2 relative rounded-full cursor-pointer">
-                <Heart color="#fff" />
+              <div className="border border-gray-200 p-2 relative rounded-full cursor-pointer hover:border-green-700">
+                <Heart className="text-green-700" size={20} />
                 <AnimatePresence>
                   {likedCount > 0 && (
                     <motion.span
@@ -216,10 +284,80 @@ const Header = () => {
               </div>
             </NavLink>
             <NavLink to="/account">
-              <div className="bg-green-700 p-2 rounded-full cursor-pointer">
-                <UserIcon color="#fff" />
+              <div className="border border-gray-200 p-2 rounded-full cursor-pointer hover:border-green-700">
+                <UserIcon className="text-green-700" size={20} />
               </div>
             </NavLink>
+            </div>
+
+            <AnimatePresence>
+              {mobileActionsOpen && (
+                <motion.div
+                  initial={{ opacity: 0, y: -8, scale: 0.98 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: -8, scale: 0.98 }}
+                  transition={{ duration: 0.18 }}
+                  className="lg:hidden absolute right-0 top-full mt-3 z-40 bg-white border border-gray-200 rounded-2xl shadow-lg p-3 flex items-center gap-2"
+                >
+                  <button
+                    type="button"
+                    onClick={toggleTheme}
+                    className="rounded-full border border-gray-200 p-2 hover:border-green-700"
+                    aria-label={
+                      darkMode ? 'Switch to light mode' : 'Switch to dark mode'
+                    }
+                  >
+                    {darkMode ? (
+                      <Sun className="text-green-700" size={20} />
+                    ) : (
+                      <Moon className="text-green-700" size={20} />
+                    )}
+                  </button>
+                  <button
+                    type="button"
+                    className="rounded-full border border-gray-200 p-2 hover:border-green-700"
+                    onClick={() => {
+                      handleSearchToggle();
+                      setMobileActionsOpen(false);
+                    }}
+                    aria-label="Open search"
+                  >
+                    <Search size={20} className="text-green-700" />
+                  </button>
+                  <NavLink to="/cart" onClick={() => setMobileActionsOpen(false)}>
+                    <div className="border border-gray-200 p-2 relative rounded-full cursor-pointer hover:border-green-700">
+                      <ShoppingBag className="text-green-700" size={20} />
+                      {cartCount > 0 && (
+                        <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-semibold rounded-full min-w-[18px] min-h-[18px] flex items-center justify-center px-1.5 py-0.5 shadow-md">
+                          {cartCount}
+                        </span>
+                      )}
+                    </div>
+                  </NavLink>
+                  <NavLink
+                    to="/favorites"
+                    onClick={() => setMobileActionsOpen(false)}
+                  >
+                    <div className="border border-gray-200 p-2 relative rounded-full cursor-pointer hover:border-green-700">
+                      <Heart className="text-green-700" size={20} />
+                      {likedCount > 0 && (
+                        <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-semibold rounded-full min-w-[18px] min-h-[18px] flex items-center justify-center px-1.5 py-0.5 shadow-md">
+                          {likedCount}
+                        </span>
+                      )}
+                    </div>
+                  </NavLink>
+                  <NavLink
+                    to="/account"
+                    onClick={() => setMobileActionsOpen(false)}
+                  >
+                    <div className="border border-gray-200 p-2 rounded-full cursor-pointer hover:border-green-700">
+                      <UserIcon className="text-green-700" size={20} />
+                    </div>
+                  </NavLink>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
         </div>
 

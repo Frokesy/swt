@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Heart, Eye } from 'lucide-react';
+import { GitCompare, Heart, Eye, Star } from 'lucide-react';
 import type { ProductType } from '../data/products';
 
 type Props = {
@@ -11,6 +11,8 @@ type Props = {
   onView: (id: string) => void;
   onAddToCart: (id: string, name: string) => void;
   onPreorder?: (product: ProductType) => void;
+  onCompare?: (product: ProductType) => void;
+  compared?: boolean;
   extra?: React.ReactNode;
 };
 
@@ -22,6 +24,8 @@ const ProductCard: React.FC<Props> = ({
   onView,
   onAddToCart,
   onPreorder,
+  onCompare,
+  compared = false,
   extra,
 }) => {
   const [isActive, setIsActive] = useState(false);
@@ -111,6 +115,27 @@ const ProductCard: React.FC<Props> = ({
                   }`}
                 />
               </motion.div>
+
+              {onCompare && (
+                <motion.div
+                  className="bg-white p-2 rounded-full cursor-pointer shadow-sm"
+                  whileHover={{ scale: 1.15 }}
+                  whileTap={{ scale: 0.9 }}
+                  onMouseEnter={() => setHoveredIcon('compare')}
+                  onMouseLeave={() => setHoveredIcon('')}
+                  onClick={() => onCompare(product)}
+                  title={compared ? 'Remove from comparison' : 'Compare'}
+                >
+                  <GitCompare
+                    size={20}
+                    className={`transition-colors duration-300 ${
+                      compared || hoveredIcon === 'compare'
+                        ? 'text-green-700'
+                        : 'text-gray-600'
+                    }`}
+                  />
+                </motion.div>
+              )}
             </motion.div>
           )}
         </AnimatePresence>
@@ -120,6 +145,24 @@ const ProductCard: React.FC<Props> = ({
       <p className="text-green-700 font-bold text-sm sm:text-base">
         £{product.price}
       </p>
+
+      <div className="flex items-center gap-1 text-xs text-gray-500 min-h-4">
+        <Star
+          size={14}
+          className={
+            product.reviewCount
+              ? 'fill-amber-400 text-amber-400'
+              : 'text-gray-300'
+          }
+        />
+        {product.reviewCount ? (
+          <span>
+            {product.averageRating?.toFixed(1)} ({product.reviewCount})
+          </span>
+        ) : (
+          <span>No ratings yet</span>
+        )}
+      </div>
 
       {extra}
 

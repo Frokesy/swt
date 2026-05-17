@@ -42,11 +42,11 @@ export const OrderConfirmedUserTemplate: FC<OrderUserTemplateProps> = ({
           <ul style={{ paddingLeft: '20px', color: '#555' }}>
             {items.map((item, index) => (
               <li key={index}>
-                {item.name} × {item.quantity} — ${item.price.toFixed(2)}
+                {item.name} × {item.quantity} — £{item.price.toFixed(2)}
               </li>
             ))}
           </ul>
-          <Text style={{ fontWeight: 'bold' }}>Total: ${total.toFixed(2)}</Text>
+          <Text style={{ fontWeight: 'bold' }}>Total: £{total.toFixed(2)}</Text>
 
           <Text style={{ fontSize: '16px', color: '#555', marginTop: '10px' }}>
             We’ll start preparing your order shortly. You’ll receive an update

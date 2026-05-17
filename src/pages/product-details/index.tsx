@@ -1,7 +1,8 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { useState, useEffect, type MouseEvent, type TouchEvent } from 'react';
 import { motion } from 'framer-motion';
-import { CheckCircle, ArrowLeft, Circle, CircleCheck } from 'lucide-react';
+import { CheckCircle, ArrowLeft, Circle, CircleCheck, Star } from 'lucide-react';
+import { ID, Query } from 'appwrite';
 import { type ProductType } from '../../components/data/products';
 import Ad from '../../components/defaults/Ad';
 import TopNav from '../../components/defaults/TopNav';
@@ -9,6 +10,19 @@ import Header from '../../components/defaults/Header';
 import { useCart } from '../../hooks/useCart';
 import { getProductById, listAllProducts } from '../../lib/products';
 import { Skeleton } from '../../components/defaults/Skeleton';
+import { databases } from '../../lib/appwrite';
+
+const DATABASE_ID = import.meta.env.VITE_DB_ID;
+const REVIEWS_COLLECTION_ID = 'productReviews';
+
+type Review = {
+  id: string;
+  productId: string;
+  name: string;
+  rating: number;
+  comment: string;
+  createdAt: string;
+};
 
 const ProductDetailsPage = () => {
   const { id } = useParams();
@@ -24,6 +38,11 @@ const ProductDetailsPage = () => {
   const [zoomStyle, setZoomStyle] = useState({});
   const [isZooming, setIsZooming] = useState(false);
   const [isTouchZoom, setIsTouchZoom] = useState(false);
+  const [reviews, setReviews] = useState<Review[]>([]);
+  const [reviewName, setReviewName] = useState('');
+  const [reviewRating, setReviewRating] = useState(5);
+  const [reviewComment, setReviewComment] = useState('');
+  const [reviewSubmitting, setReviewSubmitting] = useState(false);
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -55,6 +74,35 @@ const ProductDetailsPage = () => {
     };
 
     fetchProduct();
+  }, [id]);
+
+  useEffect(() => {
+    const loadReviews = async () => {
+      if (!id) return;
+
+      try {
+        const res = await databases.listDocuments(
+          DATABASE_ID,
+          REVIEWS_COLLECTION_ID,
+          [Query.equal('productId', id), Query.orderDesc('$createdAt')]
+        );
+
+        setReviews(
+          res.documents.map((doc) => ({
+            id: doc.$id,
+            productId: doc.productId,
+            name: doc.name,
+            rating: Number(doc.rating ?? 0),
+            comment: doc.comment,
+            createdAt: doc.$createdAt,
+          }))
+        );
+      } catch (error) {
+        console.error('Failed to load product reviews:', error);
+      }
+    };
+
+    loadReviews();
   }, [id]);
 
   const additionalInfo = [
@@ -120,6 +168,62 @@ const ProductDetailsPage = () => {
     setZoomStyle({ backgroundPosition: `${x}% ${y}%` });
   };
 
+  const handleReviewSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!id || !reviewName.trim() || !reviewComment.trim()) return;
+
+    try {
+      setReviewSubmitting(true);
+      const created = await databases.createDocument(
+        DATABASE_ID,
+        REVIEWS_COLLECTION_ID,
+        ID.unique(),
+        {
+          productId: id,
+          name: reviewName.trim(),
+          rating: reviewRating,
+          comment: reviewComment.trim(),
+        }
+      );
+
+      setReviews((current) => [
+        {
+          id: created.$id,
+          productId: created.productId,
+          name: created.name,
+          rating: Number(created.rating ?? reviewRating),
+          comment: created.comment,
+          createdAt: created.$createdAt,
+        },
+        ...current,
+      ]);
+      setProduct((current) => {
+        if (!current) return current;
+
+        const currentCount = current.reviewCount ?? reviews.length;
+        const currentAverage = current.averageRating ?? averageRating;
+        const nextCount = currentCount + 1;
+        const nextAverage =
+          (currentAverage * currentCount + reviewRating) / nextCount;
+
+        return {
+          ...current,
+          reviewCount: nextCount,
+          averageRating: nextAverage,
+        };
+      });
+      setReviewName('');
+      setReviewRating(5);
+      setReviewComment('');
+    } catch (error) {
+      console.error('Failed to submit product review:', error);
+      setToast('Review could not be submitted. Please try again.');
+      setTimeout(() => setToast(null), 1800);
+    } finally {
+      setReviewSubmitting(false);
+    }
+  };
+
   if (productLoading) {
     return (
       <div className="min-h-screen bg-gray-50">
@@ -167,6 +271,10 @@ const ProductDetailsPage = () => {
 
   const gallery = product.images || [product.image];
   const inStock = product.inStock ?? true;
+  const averageRating =
+    reviews.length > 0
+      ? reviews.reduce((sum, review) => sum + review.rating, 0) / reviews.length
+      : 0;
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -312,6 +420,104 @@ const ProductDetailsPage = () => {
             </motion.button>
           </div>
         </motion.div>
+
+        <section className="mt-10 bg-white rounded-2xl shadow-sm p-6 lg:p-8">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
+            <div>
+              <h2 className="text-2xl font-semibold text-gray-800">
+                Customer Reviews
+              </h2>
+              <p className="text-sm text-gray-500">
+                {reviews.length
+                  ? `${averageRating.toFixed(1)} out of 5 from ${
+                      reviews.length
+                    } review${reviews.length === 1 ? '' : 's'}`
+                  : 'No reviews yet.'}
+              </p>
+            </div>
+            <div className="flex gap-1">
+              {[1, 2, 3, 4, 5].map((star) => (
+                <Star
+                  key={star}
+                  size={20}
+                  className={
+                    star <= Math.round(averageRating)
+                      ? 'fill-amber-400 text-amber-400'
+                      : 'text-gray-300'
+                  }
+                />
+              ))}
+            </div>
+          </div>
+
+          <form
+            onSubmit={handleReviewSubmit}
+            className="grid gap-4 border border-gray-200 rounded-xl p-4 mb-6"
+          >
+            <div className="grid sm:grid-cols-[1fr_auto] gap-4">
+              <input
+                value={reviewName}
+                onChange={(e) => setReviewName(e.target.value)}
+                placeholder="Your name"
+                className="border border-gray-300 rounded-lg px-3 py-2 outline-none focus:border-green-700"
+                required
+              />
+              <select
+                value={reviewRating}
+                onChange={(e) => setReviewRating(Number(e.target.value))}
+                className="border border-gray-300 rounded-lg px-3 py-2 outline-none focus:border-green-700"
+              >
+                {[5, 4, 3, 2, 1].map((rating) => (
+                  <option key={rating} value={rating}>
+                    {rating} star{rating === 1 ? '' : 's'}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <textarea
+              value={reviewComment}
+              onChange={(e) => setReviewComment(e.target.value)}
+              placeholder="Share your experience with this product..."
+              rows={3}
+              className="border border-gray-300 rounded-lg px-3 py-2 outline-none focus:border-green-700 resize-none"
+              required
+            />
+            <button
+              type="submit"
+              disabled={reviewSubmitting}
+              className="bg-green-700 hover:bg-green-800 text-white px-5 py-2 rounded-lg font-semibold w-fit"
+            >
+              {reviewSubmitting ? 'Saving Review...' : 'Leave Review'}
+            </button>
+          </form>
+
+          <div className="space-y-4">
+            {reviews.map((review) => (
+              <article
+                key={review.id}
+                className="border border-gray-200 rounded-xl p-4"
+              >
+                <div className="flex items-center justify-between gap-3 mb-2">
+                  <p className="font-semibold text-gray-800">{review.name}</p>
+                  <div className="flex gap-1">
+                    {[1, 2, 3, 4, 5].map((star) => (
+                      <Star
+                        key={star}
+                        size={16}
+                        className={
+                          star <= review.rating
+                            ? 'fill-amber-400 text-amber-400'
+                            : 'text-gray-300'
+                        }
+                      />
+                    ))}
+                  </div>
+                </div>
+                <p className="text-gray-600 text-sm">{review.comment}</p>
+              </article>
+            ))}
+          </div>
+        </section>
       </div>
 
       {toast && (

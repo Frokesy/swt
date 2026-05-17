@@ -58,7 +58,7 @@ const AdminDashboard = () => {
         setStats([
           {
             title: 'Total Revenue',
-            value: `$${totalRevenue.toFixed(2)}`,
+            value: `£${totalRevenue.toFixed(2)}`,
             icon: <TrendingUp size={24} />,
             color: 'bg-green-100 text-green-700',
           },

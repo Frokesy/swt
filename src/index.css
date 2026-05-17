@@ -1,4 +1,59 @@
 @import "tailwindcss";
+
+:root {
+    color-scheme: light;
+}
+
+:root.dark {
+    color-scheme: dark;
+}
+
+:root.dark body {
+    background: #111827;
+    color: #e5e7eb;
+}
+
+:root.dark .bg-white {
+    background-color: #1f2937 !important;
+}
+
+:root.dark .bg-gray-50,
+:root.dark .bg-gray-100 {
+    background-color: #111827 !important;
+}
+
+:root.dark .text-gray-800,
+:root.dark .text-gray-700,
+:root.dark .text-\[\#333\] {
+    color: #e5e7eb !important;
+}
+
+:root.dark .text-gray-600,
+:root.dark .text-gray-500 {
+    color: #cbd5e1 !important;
+}
+
+:root.dark .border-gray-100,
+:root.dark .border-gray-200,
+:root.dark .border-\[\#ddd\],
+:root.dark .border-\[\#ccc\] {
+    border-color: #374151 !important;
+}
+
+:root.dark input,
+:root.dark textarea,
+:root.dark select {
+    background-color: #111827;
+    color: #e5e7eb;
+}
+
+:root.dark .shadow,
+:root.dark .shadow-sm,
+:root.dark .shadow-md,
+:root.dark .shadow-lg {
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.35) !important;
+}
+
 .zoom-active img {
     transform: scale(1.8);
     transform-origin: var(--x) var(--y);

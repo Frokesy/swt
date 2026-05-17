@@ -17,6 +17,8 @@ export interface ProductType {
   origin?: string;
   bestBefore?: string;
   dimensions?: string;
+  averageRating?: number;
+  reviewCount?: number;
 }
 
 export const products: ProductType[] = [

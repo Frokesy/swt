@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Save, Loader2, AlertCircle, CheckCircle } from 'lucide-react';
@@ -8,10 +7,20 @@ import {
   updateDeliveryFee,
   type DeliverySettings,
 } from '../../../lib/deliverySettings';
+import {
+  getAdBannerContent,
+  getDeliveryInfoContent,
+  updateAdBannerContent,
+  updateDeliveryInfoContent,
+} from '../../../lib/siteContent';
 
 const AdminDeliverySettings = () => {
   const [settings, setSettings] = useState<DeliverySettings | null>(null);
   const [fee, setFee] = useState<string>('5.99');
+  const [adMessage, setAdMessage] = useState('');
+  const [adEnabled, setAdEnabled] = useState(true);
+  const [deliveryTitle, setDeliveryTitle] = useState('Delivery Information');
+  const [deliveryItemsText, setDeliveryItemsText] = useState('');
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<{
@@ -24,8 +33,16 @@ const AdminDeliverySettings = () => {
       try {
         setLoading(true);
         const currentFee = await getDeliveryFee();
+        const [adContent, deliveryContent] = await Promise.all([
+          getAdBannerContent(),
+          getDeliveryInfoContent(),
+        ]);
         setFee(currentFee.toString());
         setSettings({ fee: currentFee });
+        setAdMessage(adContent.message);
+        setAdEnabled(adContent.enabled);
+        setDeliveryTitle(deliveryContent.title);
+        setDeliveryItemsText(deliveryContent.items.join('\n'));
       } catch (error) {
         console.error('Error loading delivery settings:', error);
         setMessage({
@@ -54,12 +71,25 @@ const AdminDeliverySettings = () => {
       }
 
       setSaving(true);
-      await updateDeliveryFee(newFee);
+      await Promise.all([
+        updateDeliveryFee(newFee),
+        updateAdBannerContent({
+          message: adMessage.trim(),
+          enabled: adEnabled,
+        }),
+        updateDeliveryInfoContent({
+          title: deliveryTitle.trim() || 'Delivery Information',
+          items: deliveryItemsText
+            .split('\n')
+            .map((item) => item.trim())
+            .filter(Boolean),
+        }),
+      ]);
 
       setSettings({ fee: newFee });
       setMessage({
         type: 'success',
-        text: `Delivery fee updated to £${newFee.toFixed(2)}`,
+        text: 'Delivery, ad banner, and delivery page content updated.',
       });
 
       // Clear message after 3 seconds
@@ -106,11 +136,11 @@ const AdminDeliverySettings = () => {
           {/* Header */}
           <div className="mb-8">
             <h1 className="text-3xl font-bold text-gray-800 mb-2">
-              Delivery Settings
+              Delivery & Site Notices
             </h1>
             <p className="text-gray-600">
-              Manage the delivery fee that will be applied to all customer
-              orders
+              Manage delivery fee, customer-facing delivery information, and the
+              site-wide ad banner
             </p>
           </div>
 
@@ -176,6 +206,51 @@ const AdminDeliverySettings = () => {
                 <span className="font-semibold">💡 Tip:</span> This delivery fee
                 will be automatically applied to all customer checkouts and is
                 added to their order total.
+              </p>
+            </div>
+
+            <div className="space-y-3 border-t border-gray-200 pt-6">
+              <label className="block text-lg font-semibold text-gray-700">
+                Ad Banner
+              </label>
+              <div className="flex items-center gap-3">
+                <input
+                  id="ad-enabled"
+                  type="checkbox"
+                  checked={adEnabled}
+                  onChange={(e) => setAdEnabled(e.target.checked)}
+                  className="h-4 w-4"
+                />
+                <label htmlFor="ad-enabled" className="text-sm text-gray-700">
+                  Show banner on user pages
+                </label>
+              </div>
+              <input
+                value={adMessage}
+                onChange={(e) => setAdMessage(e.target.value)}
+                className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-green-700 focus:ring-2 focus:ring-green-100 transition"
+                placeholder="Banner message"
+              />
+            </div>
+
+            <div className="space-y-3 border-t border-gray-200 pt-6">
+              <label className="block text-lg font-semibold text-gray-700">
+                Delivery Information Page
+              </label>
+              <input
+                value={deliveryTitle}
+                onChange={(e) => setDeliveryTitle(e.target.value)}
+                className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-green-700 focus:ring-2 focus:ring-green-100 transition"
+                placeholder="Page title"
+              />
+              <textarea
+                value={deliveryItemsText}
+                onChange={(e) => setDeliveryItemsText(e.target.value)}
+                className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-green-700 focus:ring-2 focus:ring-green-100 transition min-h-[220px]"
+                placeholder="One delivery information item per line"
+              />
+              <p className="text-xs text-gray-500">
+                Add one delivery information bullet per line.
               </p>
             </div>
 
