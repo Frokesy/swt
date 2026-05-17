@@ -11,6 +11,7 @@ import Carts from './pages/cart';
 import ProductDetailsPage from './pages/product-details';
 import Login from './pages/auth/login';
 import Signup from './pages/auth/signup';
+import ResetPassword from './pages/auth/reset-password';
 import ProtectedRoute from './components/defaults/ProtectedRoute';
 import Checkout from './pages/checkout';
 import Success from './pages/checkout/success';
@@ -90,6 +91,7 @@ const App = () => {
     },
     { path: '/auth/login', element: <Login /> },
     { path: '/auth/signup', element: <Signup /> },
+    { path: '/auth/reset-password', element: <ResetPassword /> },
 
     // Admin Routes
     { path: '/admin/login', element: <AdminLogin /> },

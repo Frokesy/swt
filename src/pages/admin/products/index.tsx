@@ -118,7 +118,7 @@ const AdminProducts = () => {
                     <td className="px-6 py-4 font-medium text-gray-800">
                       {p.name}
                     </td>
-                    <td className="px-6 py-4">₦{p.price.toFixed(2)}</td>
+                    <td className="px-6 py-4">£{p.price.toFixed(2)}</td>
                     <td className="px-6 py-4 text-sm text-gray-600">
                       {p.category || '—'}
                     </td>

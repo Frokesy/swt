@@ -8,6 +8,7 @@ import { NavLink } from 'react-router-dom';
 import { account } from '../../lib/appwrite';
 import { useLocation } from 'react-router-dom';
 import Toast from '../../components/defaults/Toast';
+import ForgotPasswordModal from '../../components/modals/ForgotPasswordModal';
 
 const fadeUp = {
   hidden: { opacity: 0, y: 20 },
@@ -21,6 +22,7 @@ const Login = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [toast, setToast] = useState<string | null>(null);
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
   const location = useLocation();
   const from = location.state?.from || '/';
 
@@ -123,6 +125,16 @@ const Login = () => {
             </div>
           </div>
 
+          <div className="mb-5 text-right">
+            <button
+              type="button"
+              onClick={() => setShowForgotPassword(true)}
+              className="text-sm text-blue-600 hover:text-blue-800 hover:underline"
+            >
+              Forgot Password?
+            </button>
+          </div>
+
           {error && (
             <p className="text-red-500 text-sm mb-3 text-center">{error}</p>
           )}
@@ -154,6 +166,10 @@ const Login = () => {
         </motion.form>
       </motion.div>
       <AnimatePresence>{toast && <Toast toast={toast} />}</AnimatePresence>
+      <ForgotPasswordModal
+        isOpen={showForgotPassword}
+        onClose={() => setShowForgotPassword(false)}
+      />
     </div>
   );
 };
