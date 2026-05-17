@@ -6,15 +6,14 @@ import { type ProductType } from '../../components/data/products';
 import Ad from '../../components/defaults/Ad';
 import TopNav from '../../components/defaults/TopNav';
 import Header from '../../components/defaults/Header';
-import { databases } from '../../lib/appwrite';
 import { useCart } from '../../hooks/useCart';
-const DATABASE_ID = import.meta.env.VITE_DB_ID;
-const COLLECTION_ID = 'products';
+import { getProductById, listAllProducts } from '../../lib/products';
 
 const ProductDetailsPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [product, setProduct] = useState<ProductType | null>(null);
+  const [productLoading, setProductLoading] = useState(true);
   const [loadingId, setLoadingId] = useState<string | null>('');
   const [products, setProducts] = useState<ProductType[]>([]);
   const { addToCart } = useCart();
@@ -27,50 +26,64 @@ const ProductDetailsPage = () => {
 
   useEffect(() => {
     const fetchProducts = async () => {
-      const res = await databases.listDocuments(DATABASE_ID, COLLECTION_ID);
-
-      const mapped = res.documents.map((doc) => ({
-        id: doc.$id,
-        name: doc.name,
-        price: doc.price,
-        image: doc.image,
-        category: doc.category,
-        type: doc.type,
-        quantity: doc.quantity,
-        desc: doc.desc,
-        images: Array.isArray(doc.images)
-          ? doc.images
-          : typeof doc.images === 'string'
-            ? JSON.parse(doc.images)
-            : [],
-        liked: doc.liked,
-        inStock: doc.inStock,
-      }));
-
-      setProducts(mapped);
+      setProducts(await listAllProducts());
     };
 
     fetchProducts();
   }, []);
 
   useEffect(() => {
-    const found = products.find((p) => p.id === id);
-    if (found) {
-      setProduct(found);
-      const gallery =
-        Array.isArray(product?.images) && product.images.length > 0
-          ? product.images
-          : [product?.image];
-      setActiveImage(gallery[0]);
-    } else {
-      setProduct(null);
+    const fetchProduct = async () => {
+      if (!id) return;
+
+      try {
+        setProductLoading(true);
+        const found = await getProductById(id);
+        setProduct(found);
+        const gallery =
+          Array.isArray(found.images) && found.images.length > 0
+            ? found.images
+            : [found.image];
+        setActiveImage(gallery[0]);
+      } catch (error) {
+        console.error('Failed to load product:', error);
+        setProduct(null);
+      } finally {
+        setProductLoading(false);
+      }
+    };
+
+    fetchProduct();
+  }, [id]);
+
+  const additionalInfo = [
+    ['SKU', product?.sku],
+    ['Weight', product?.weight],
+    ['Dimensions', product?.dimensions],
+    ['Origin', product?.origin],
+    [
+      'Best Before',
+      product?.bestBefore
+        ? new Intl.DateTimeFormat('en-GB', {
+            day: 'numeric',
+            month: 'short',
+            year: 'numeric',
+          }).format(new Date(product.bestBefore))
+        : undefined,
+    ],
+  ].filter(([, value]) => value);
+
+  useEffect(() => {
+    const syncedProduct = products.find((p) => p.id === id);
+    if (syncedProduct) {
+      setProduct(syncedProduct);
     }
   }, [products, id]);
 
   const handleAddToCart = async (id: string, name: string) => {
     setLoadingId(id);
     try {
-      const productToAdd = products.find((p) => p.id === id);
+      const productToAdd = products.find((p) => p.id === id) ?? product;
       if (!productToAdd) return;
 
       await addToCart(productToAdd);
@@ -100,6 +113,14 @@ const ProductDetailsPage = () => {
     const y = ((touch.clientY - rect.top) / rect.height) * 100;
     setZoomStyle({ backgroundPosition: `${x}% ${y}%` });
   };
+
+  if (productLoading) {
+    return (
+      <div className="flex flex-col items-center justify-center h-screen text-center">
+        <p className="text-gray-500">Loading product...</p>
+      </div>
+    );
+  }
 
   if (!product) {
     return (
@@ -189,7 +210,7 @@ const ProductDetailsPage = () => {
               </h1>
 
               <p className="text-green-700 font-semibold text-2xl mb-5">
-                ${product.price.toLocaleString()}
+                £{product.price.toLocaleString()}
               </p>
 
               <div className="flex items-center gap-2 mb-4">
@@ -227,10 +248,15 @@ const ProductDetailsPage = () => {
                     Additional Info
                   </p>
                   <ul className="text-gray-700 text-sm space-y-1">
-                    <li>• Weight: 1.2kg</li>
-                    <li>• Dimensions: 15 × 10 × 8 cm</li>
-                    <li>• Origin: Nigeria</li>
-                    <li>• Best Before: 12 months</li>
+                    {additionalInfo.length > 0 ? (
+                      additionalInfo.map(([label, value]) => (
+                        <li key={label}>
+                          • {label}: {value}
+                        </li>
+                      ))
+                    ) : (
+                      <li>No additional information available.</li>
+                    )}
                   </ul>
                 </div>
               </div>

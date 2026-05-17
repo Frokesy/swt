@@ -11,6 +11,11 @@ export interface ProductType {
   liked?: boolean;
   inStock?: boolean;
   salesCount?: number;
+  sku?: string;
+  weight?: string;
+  origin?: string;
+  bestBefore?: string;
+  dimensions?: string;
 }
 
 export const products: ProductType[] = [

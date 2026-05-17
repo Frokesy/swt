@@ -4,12 +4,9 @@ import ProductCard from '../defaults/ProductCard';
 import { type ProductType } from '../data/products';
 import { get, set } from 'idb-keyval';
 import { useNavigate } from 'react-router-dom';
-import { databases } from '../../lib/appwrite';
 import Toast from '../defaults/Toast';
 import { useCart } from '../../hooks/useCart';
-
-const DATABASE_ID = import.meta.env.VITE_DB_ID;
-const COLLECTION_ID = 'products';
+import { listAllProducts } from '../../lib/products';
 
 const Products = () => {
   const [liked, setLiked] = useState<string[]>([]);
@@ -41,7 +38,9 @@ const Products = () => {
       await set('likedItems', updatedLikes);
       try {
         window.dispatchEvent(new Event('likedItemsChanged'));
-      } catch {}
+      } catch (error) {
+        console.error('Failed to dispatch liked items event:', error);
+      }
 
       setLiked(updatedLikes.map((item: ProductType) => item.id));
 
@@ -68,17 +67,7 @@ const Products = () => {
     }
   };
   const categories = Array.from(new Set(products.map((p) => p.category)));
-
-  const [visibleCount, setVisibleCount] = useState<Record<string, number>>(
-    Object.fromEntries(categories.map((cat) => [cat, 4]))
-  );
-
-  const handleLoadMore = (category: string) => {
-    setVisibleCount((prev) => ({
-      ...prev,
-      [category]: prev[category] + 4,
-    }));
-  };
+  const displayedCategories = categories.slice(0, 3);
 
   const containerVariants = {
     hidden: {},
@@ -107,23 +96,7 @@ const Products = () => {
 
   useEffect(() => {
     const fetchProducts = async () => {
-      const res = await databases.listDocuments(DATABASE_ID, COLLECTION_ID);
-
-      const mapped = res.documents.map((doc) => ({
-        id: doc.$id,
-        name: doc.name,
-        price: doc.price,
-        image: doc.image,
-        category: doc.category,
-        type: doc.type,
-        quantity: doc.quantity,
-        desc: doc.desc,
-        images: doc.images,
-        liked: doc.liked,
-        inStock: doc.inStock,
-      }));
-
-      setProducts(mapped);
+      setProducts(await listAllProducts());
     };
 
     fetchProducts();
@@ -131,15 +104,11 @@ const Products = () => {
 
   return (
     <div className="lg:w-[60%] w-[90%] mx-auto my-10 space-y-14">
-      {categories.map((category) => {
+      {displayedCategories.map((category) => {
         const categoryProducts = products.filter(
           (p) => p.category === category
         );
-        const visibleProducts = categoryProducts.slice(
-          0,
-          visibleCount[category]
-        );
-        const hasMore = visibleCount[category] < categoryProducts.length;
+        const visibleProducts = categoryProducts.slice(0, 4);
 
         return (
           <div key={category}>
@@ -164,21 +133,22 @@ const Products = () => {
               ))}
             </motion.div>
 
-            {hasMore && (
-              <div className="flex justify-center mt-8">
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  className="bg-[#6eb356] text-white py-2 px-6 rounded-lg hover:bg-[#5aa246] transition-colors ease-in-out duration-300"
-                  onClick={() => handleLoadMore(category)}
-                >
-                  Load More
-                </motion.button>
-              </div>
-            )}
           </div>
         );
       })}
+
+      {categories.length > 0 && (
+        <div className="flex justify-center">
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            className="bg-[#6eb356] text-white py-3 px-8 rounded-lg hover:bg-[#5aa246] transition-colors ease-in-out duration-300 font-semibold"
+            onClick={() => navigate('/product-catalogue')}
+          >
+            Explore All Products
+          </motion.button>
+        </div>
+      )}
 
       <AnimatePresence>{toast && <Toast toast={toast} />}</AnimatePresence>
     </div>

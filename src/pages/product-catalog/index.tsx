@@ -9,10 +9,8 @@ import ProductCard from '../../components/defaults/ProductCard';
 import { Pagination } from 'antd';
 import { set, get } from 'idb-keyval';
 import { useNavigate } from 'react-router-dom';
-import { databases } from '../../lib/appwrite';
 import { useCart } from '../../hooks/useCart';
-const DATABASE_ID = import.meta.env.VITE_DB_ID;
-const COLLECTION_ID = 'products';
+import { listAllProducts } from '../../lib/products';
 
 const ProductCatalogue = () => {
   const [liked, setLiked] = useState<string[]>([]);
@@ -70,7 +68,9 @@ const ProductCatalogue = () => {
       // notify other parts of the app that liked items changed
       try {
         window.dispatchEvent(new Event('likedItemsChanged'));
-      } catch {}
+      } catch (error) {
+        console.error('Failed to dispatch liked items event:', error);
+      }
 
       setLiked(updatedLikes.map((item: ProductType) => item.id));
 
@@ -114,23 +114,7 @@ const ProductCatalogue = () => {
 
   useEffect(() => {
     const fetchProducts = async () => {
-      const res = await databases.listDocuments(DATABASE_ID, COLLECTION_ID);
-
-      const mapped = res.documents.map((doc) => ({
-        id: doc.$id,
-        name: doc.name,
-        price: doc.price,
-        image: doc.image,
-        category: doc.category,
-        type: doc.type,
-        quantity: doc.quantity,
-        desc: doc.desc,
-        images: doc.images,
-        liked: doc.liked,
-        inStock: doc.inStock,
-      }));
-
-      setProducts(mapped);
+      setProducts(await listAllProducts());
     };
 
     fetchProducts();

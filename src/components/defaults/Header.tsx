@@ -4,8 +4,8 @@ import { get } from 'idb-keyval';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useCart } from '../../hooks/useCart';
-import { databases } from '../../lib/appwrite';
 import { type ProductType } from '../data/products';
+import { listAllProducts } from '../../lib/products';
 
 const navItems = [
   { id: 1, label: 'Home', link: '/' },
@@ -15,9 +15,6 @@ const navItems = [
   { id: 5, label: 'Preorder', link: '/preorder' },
   { id: 6, label: 'Delivery Information', link: '/delivery-info' },
 ];
-
-const DATABASE_ID = import.meta.env.VITE_DB_ID;
-const COLLECTION_ID = 'products';
 
 const Header = () => {
   const { cartCount } = useCart();
@@ -37,25 +34,11 @@ const Header = () => {
     const fetchProducts = async () => {
       try {
         setSearchLoading(true);
-        const res = await databases.listDocuments(DATABASE_ID, COLLECTION_ID);
 
+        const loadedProducts = await listAllProducts();
         if (!isMounted) return;
 
-        const mapped = res.documents.map((doc) => ({
-          id: doc.$id,
-          name: doc.name,
-          price: doc.price,
-          image: doc.image,
-          category: doc.category,
-          type: doc.type,
-          quantity: doc.quantity,
-          desc: doc.desc,
-          images: doc.images,
-          liked: doc.liked,
-          inStock: doc.inStock,
-        }));
-
-        setProducts(mapped);
+        setProducts(loadedProducts);
         setSearchError('');
       } catch (error) {
         console.error('Failed to fetch products for header search:', error);

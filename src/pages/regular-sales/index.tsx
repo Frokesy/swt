@@ -99,7 +99,9 @@ const RegularSales = () => {
       await set('likedItems', updatedLikes);
       try {
         window.dispatchEvent(new Event('likedItemsChanged'));
-      } catch {}
+      } catch (error) {
+        console.error('Failed to dispatch liked items event:', error);
+      }
 
       setLiked(updatedLikes.map((item) => item.id));
 

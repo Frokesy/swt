@@ -30,24 +30,42 @@ const ProductForm = ({ initial = {}, onSubmit, submitting }: Props) => {
     (initial as any).bestBefore ?? ''
   );
 
+  const generateSku = () => {
+    const base = [category, name]
+      .filter(Boolean)
+      .join('-')
+      .toUpperCase()
+      .replace(/[^A-Z0-9]+/g, '-')
+      .replace(/^-|-$/g, '')
+      .slice(0, 24);
+    const suffix = Date.now().toString(36).toUpperCase();
+
+    return `${base || 'PRODUCT'}-${suffix}`;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!image.trim() && (!imageFiles || imageFiles.length === 0)) {
+      alert('Please add a primary image URL or upload at least one image.');
+      return;
+    }
+
     const payload: Partial<ProductType> & Record<string, any> = {
-      name,
+      name: name.trim(),
       price,
-      category,
-      type,
+      category: category.trim(),
+      type: type.trim(),
       quantity,
-      image,
+      image: image.trim(),
       images: images
         .split(',')
         .map((s) => s.trim())
         .filter(Boolean),
-      desc,
+      desc: desc.trim(),
       inStock,
-      sku,
-      weight,
-      origin,
+      sku: sku.trim() || generateSku(),
+      weight: weight.trim(),
+      origin: origin.trim(),
       bestBefore,
     };
 
@@ -116,9 +134,10 @@ const ProductForm = ({ initial = {}, onSubmit, submitting }: Props) => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-2">
-                Category
+                Category *
               </label>
               <input
+                required
                 value={category}
                 onChange={(e) => setCategory(e.target.value)}
                 placeholder="e.g., Bakery"
@@ -127,9 +146,10 @@ const ProductForm = ({ initial = {}, onSubmit, submitting }: Props) => {
             </div>
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-2">
-                Type
+                Type *
               </label>
               <input
+                required
                 value={type}
                 onChange={(e) => setType(e.target.value)}
                 placeholder="e.g., Bread"
@@ -148,9 +168,10 @@ const ProductForm = ({ initial = {}, onSubmit, submitting }: Props) => {
         <div className="space-y-4">
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-2">
-              Description
+              Description *
             </label>
             <textarea
+              required
               value={desc}
               onChange={(e) => setDesc(e.target.value)}
               placeholder="Describe your product..."
@@ -161,7 +182,7 @@ const ProductForm = ({ initial = {}, onSubmit, submitting }: Props) => {
 
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-2">
-              Primary Image URL
+              Primary Image URL or Upload *
             </label>
             <input
               value={image}
@@ -230,15 +251,16 @@ const ProductForm = ({ initial = {}, onSubmit, submitting }: Props) => {
               <input
                 value={sku}
                 onChange={(e) => setSku(e.target.value)}
-                placeholder="e.g., SKU-001"
+                placeholder="Leave blank to auto-generate"
                 className={inputClass}
               />
             </div>
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-2">
-                Weight
+                Weight *
               </label>
               <input
+                required
                 value={weight}
                 onChange={(e) => setWeight(e.target.value)}
                 placeholder="e.g., 500g"
@@ -247,9 +269,10 @@ const ProductForm = ({ initial = {}, onSubmit, submitting }: Props) => {
             </div>
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-2">
-                Origin
+                Origin *
               </label>
               <input
+                required
                 value={origin}
                 onChange={(e) => setOrigin(e.target.value)}
                 placeholder="e.g., Nigeria"
@@ -261,9 +284,10 @@ const ProductForm = ({ initial = {}, onSubmit, submitting }: Props) => {
           <div className="flex items-end gap-4">
             <div className="flex-1">
               <label className="block text-sm font-semibold text-gray-700 mb-2">
-                Best Before Date
+                Best Before Date *
               </label>
               <input
+                required
                 type="date"
                 value={bestBefore}
                 onChange={(e) => setBestBefore(e.target.value)}
