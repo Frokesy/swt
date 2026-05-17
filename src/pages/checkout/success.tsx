@@ -11,6 +11,7 @@ import { render } from '@react-email/render';
 import { Slide, toast } from 'react-toastify';
 import { OrderConfirmedUserTemplate } from '../../components/email-templates/OrderConfirmedUserTemplate';
 import { NewOrderAdminTemplate } from '../../components/email-templates/NewOrderAdminTemplate';
+import { PageBlockSkeleton } from '../../components/defaults/Skeleton';
 
 const DATABASE_ID = import.meta.env.VITE_DB_ID;
 const ORDERS_COLLECTION_ID = 'orders';
@@ -23,9 +24,8 @@ const Success = () => {
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [success, setSuccess] = useState(false);
-  const [deliveryFee, setDeliveryFee] = useState<number>(5.99);
+  const [statusMessage, setStatusMessage] = useState('Confirming payment...');
   const hasProcessed = useRef(false);
-  const totalWithDelivery = totalPrice + deliveryFee;
 
   useEffect(() => {
     const handleSuccess = async () => {
@@ -33,12 +33,14 @@ const Success = () => {
       hasProcessed.current = true;
 
       try {
+        setStatusMessage('Getting your account details...');
         const currentUser = await account.get();
         setUser(currentUser);
 
+        setStatusMessage('Calculating delivery and preparing your order...');
         // Fetch delivery fee
         const fee = await getDeliveryFee();
-        setDeliveryFee(fee);
+        const orderTotal = totalPrice + fee;
 
         const normalizedItems = cartItems.map((item) => ({
           id: item.id,
@@ -47,6 +49,7 @@ const Success = () => {
           quantity: item.quantity ?? 1,
         }));
 
+        setStatusMessage('Saving your order...');
         const order = await databases.createDocument(
           DATABASE_ID,
           ORDERS_COLLECTION_ID,
@@ -56,7 +59,7 @@ const Success = () => {
             email: currentUser.email,
             items: [JSON.stringify(normalizedItems)],
             totalPrice,
-            deliveryFee: Math.round(deliveryFee * 100),
+            deliveryFee: Math.round(fee * 100),
             status: 'Pending',
             orderId: Math.random().toString(16).slice(2, 10),
           }
@@ -64,10 +67,38 @@ const Success = () => {
 
         console.log('✅ Order saved:', order.$createdAt);
 
+        setStatusMessage('Updating product inventory...');
+        for (const item of normalizedItems) {
+          try {
+            const product = await databases.getDocument(
+              DATABASE_ID,
+              'products',
+              item.id
+            );
+
+            const currentSales = product.salesCount ?? 0;
+            const newSales = currentSales + item.quantity;
+            const currentQuantity = Number(product.quantity ?? 0);
+            const nextQuantity = Math.max(0, currentQuantity - item.quantity);
+
+            await databases.updateDocument(DATABASE_ID, 'products', item.id, {
+              salesCount: newSales,
+              quantity: nextQuantity,
+              inStock: nextQuantity > 0,
+            });
+          } catch (err) {
+            console.error(
+              `❌ Failed to update sales count for ${item.name}:`,
+              err
+            );
+          }
+        }
+
+        setStatusMessage('Sending confirmation emails...');
         const userEmailHtml = render(
           <OrderConfirmedUserTemplate
             firstname={currentUser.name}
-            total={totalWithDelivery}
+            total={orderTotal}
             items={normalizedItems}
           />
         );
@@ -82,7 +113,7 @@ const Success = () => {
           <NewOrderAdminTemplate
             customerName={currentUser.name}
             customerEmail={currentUser.email}
-            total={totalWithDelivery}
+            total={orderTotal}
             items={normalizedItems}
           />
         );
@@ -93,31 +124,7 @@ const Success = () => {
           body: await adminEmailHtml,
         });
 
-        console.log(cartItems);
-
-        for (const item of normalizedItems) {
-          try {
-            const product = await databases.getDocument(
-              DATABASE_ID,
-              'products',
-              item.id
-            );
-
-            const currentSales = product.salesCount ?? 0;
-            const newSales = currentSales + item.quantity;
-
-            await databases.updateDocument(DATABASE_ID, 'products', item.id, {
-              salesCount: newSales,
-              quantity: product.quantity - 1,
-            });
-          } catch (err) {
-            console.error(
-              `❌ Failed to update sales count for ${item.name}:`,
-              err
-            );
-          }
-        }
-
+        setStatusMessage('Finalizing your order...');
         toast.success('🎉 Order placed successfully! Check your email.', {
           position: 'top-center',
           autoClose: 2000,
@@ -141,12 +148,22 @@ const Success = () => {
     };
 
     handleSuccess();
+    // This effect processes a completed payment once on landing.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   if (loading)
     return (
       <div className="flex items-center justify-center h-screen text-gray-700">
-        Processing your order, please do not refresh or go back...
+        <div className="w-[90%] max-w-xl">
+          <PageBlockSkeleton />
+          <div className="mt-6 rounded-xl border border-green-100 bg-green-50 px-5 py-4 text-center">
+            <p className="font-semibold text-green-700">{statusMessage}</p>
+          </div>
+          <p className="mt-4 text-center">
+            Processing your order, please do not refresh or go back...
+          </p>
+        </div>
       </div>
     );
 

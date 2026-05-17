@@ -10,6 +10,7 @@ import { useCart } from '../../hooks/useCart';
 import { useNavigate } from 'react-router-dom';
 import { account, databases } from '../../lib/appwrite';
 import { Query } from 'appwrite';
+import { PageBlockSkeleton } from '../../components/defaults/Skeleton';
 const DATABASE_ID = import.meta.env.VITE_DB_ID;
 
 const Carts = () => {
@@ -66,8 +67,13 @@ const Carts = () => {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center min-h-[60vh] text-gray-500">
-        Loading your cart...
+      <div>
+        <Ad />
+        <Header />
+        <TopNav />
+        <div className="w-[90%] lg:w-[60%] mx-auto my-10">
+          <PageBlockSkeleton />
+        </div>
       </div>
     );
   }
@@ -106,7 +112,11 @@ const Carts = () => {
           <>
             <div className="space-y-4">
               <AnimatePresence>
-                {cartItems.map((item) => (
+                {cartItems.map((item) => {
+                  const maxQuantity = item.stockQuantity ?? item.quantity ?? 1;
+                  const isAtStockLimit = (item.quantity ?? 1) >= maxQuantity;
+
+                  return (
                   <motion.div
                     key={item.id}
                     initial={{ opacity: 0, y: 30 }}
@@ -143,7 +153,13 @@ const Carts = () => {
                         </span>
                         <button
                           onClick={() => increment(item.id)}
-                          className="w-7 h-7 flex items-center justify-center rounded-full border border-gray-300 hover:bg-gray-100 transition"
+                          disabled={isAtStockLimit}
+                          className="w-7 h-7 flex items-center justify-center rounded-full border border-gray-300 hover:bg-gray-100 transition disabled:opacity-40 disabled:cursor-not-allowed"
+                          title={
+                            isAtStockLimit
+                              ? `Only ${maxQuantity} in stock`
+                              : 'Increase quantity'
+                          }
                         >
                           <Plus size={14} />
                         </button>
@@ -158,7 +174,8 @@ const Carts = () => {
                       </button>
                     </div>
                   </motion.div>
-                ))}
+                  );
+                })}
               </AnimatePresence>
             </div>
 

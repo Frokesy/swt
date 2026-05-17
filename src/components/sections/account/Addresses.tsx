@@ -3,6 +3,7 @@ import { databases } from '../../../lib/appwrite';
 import { Query } from 'appwrite';
 import { motion } from 'framer-motion';
 import { MapPin } from 'lucide-react';
+import { PageBlockSkeleton } from '../../defaults/Skeleton';
 
 const DATABASE_ID = import.meta.env.VITE_DB_ID;
 const ADDRESSES_COLLECTION_ID = 'deliveryAddresses';
@@ -37,7 +38,7 @@ const Addresses = ({ userId }: { userId: string }) => {
   }, [userId]);
 
   if (loading) {
-    return <p className="text-gray-500">Loading addresses...</p>;
+    return <PageBlockSkeleton />;
   }
 
   if (addresses.length === 0) {

@@ -12,9 +12,11 @@ import { ID, Query, Functions } from 'appwrite';
 import Toast from '../../components/defaults/Toast';
 import ErrToast from '../../components/defaults/ErrToast';
 import { getDeliveryFee } from '../../lib/deliverySettings';
+import { PageBlockSkeleton } from '../../components/defaults/Skeleton';
 
 const DATABASE_ID = import.meta.env.VITE_DB_ID;
 const DELIVERY_COLLECTION_ID = 'deliveryAddresses';
+const PRODUCTS_COLLECTION_ID = 'products';
 
 const Checkout = () => {
   const { cartItems, totalPrice } = useCart();
@@ -110,6 +112,24 @@ const Checkout = () => {
     }
 
     try {
+      for (const item of cartItems) {
+        const product = await databases.getDocument(
+          DATABASE_ID,
+          PRODUCTS_COLLECTION_ID,
+          item.id
+        );
+        const requestedQuantity = item.quantity ?? 1;
+        const availableQuantity = Number(product.quantity ?? 0);
+
+        if (!product.inStock || availableQuantity < requestedQuantity) {
+          setErrToast(
+            `${item.name} is out of stock. Please preorder this product instead.`
+          );
+          setTimeout(() => setErrToast(null), 2200);
+          return;
+        }
+      }
+
       const lineItems = cartItems.map((item) => ({
         name: item.name,
         price: item.price,
@@ -161,8 +181,13 @@ const Checkout = () => {
 
   if (loading)
     return (
-      <div className="flex items-center justify-center h-screen">
-        <p>Loading checkout details...</p>
+      <div>
+        <Ad />
+        <Header />
+        <TopNav />
+        <div className="w-[90%] md:w-[60%] mx-auto my-10">
+          <PageBlockSkeleton />
+        </div>
       </div>
     );
 

@@ -13,12 +13,14 @@ import { useNavigate } from 'react-router-dom';
 import { databases } from '../../lib/appwrite';
 import { Query } from 'appwrite';
 import { useCart } from '../../hooks/useCart';
+import { ProductGridSkeleton } from '../../components/defaults/Skeleton';
 
 const DATABASE_ID = import.meta.env.VITE_DB_ID;
 const COLLECTION_ID = 'products';
 
 const RegularSales = () => {
   const [products, setProducts] = useState<ProductType[]>([]);
+  const [loadingProducts, setLoadingProducts] = useState(true);
   const [liked, setLiked] = useState<string[]>([]);
   const [loadingId, setLoadingId] = useState<string | null>(null);
   const [toast, setToast] = useState<string | null>(null);
@@ -46,8 +48,10 @@ const RegularSales = () => {
   useEffect(() => {
     const fetchTopProducts = async () => {
       try {
+        setLoadingProducts(true);
         const res = await databases.listDocuments(DATABASE_ID, COLLECTION_ID, [
-          (Query.orderDesc('salesCount'), Query.limit(12)),
+          Query.orderDesc('salesCount'),
+          Query.limit(12),
         ]);
 
         const mapped = res.documents.map((doc: any) => ({
@@ -67,17 +71,16 @@ const RegularSales = () => {
         setProducts(mapped);
       } catch (error) {
         console.error('Error fetching products:', error);
+      } finally {
+        setLoadingProducts(false);
       }
     };
 
     fetchTopProducts();
   }, []);
 
-  const totalPages = Math.ceil(products.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const currentProducts = products.slice(startIndex, startIndex + itemsPerPage);
-
-  console.log(totalPages);
 
   const handleLike = async (id: string, name?: string) => {
     try {
@@ -164,30 +167,39 @@ const RegularSales = () => {
           </div>
         </div>
 
-        <motion.div
-          variants={containerVariants}
-          initial="hidden"
-          animate="show"
-          className="grid lg:grid-cols-4 grid-cols-2 gap-5 my-10"
-        >
-          {currentProducts.map((product) => (
-            <motion.div key={product.id} variants={itemVariants}>
-              <ProductCard
-                product={product}
-                liked={liked.includes(product.id)}
-                loading={loadingId === product.id}
-                onLike={handleLike}
-                onView={(id) => navigate(`/product/${id}`)}
-                onAddToCart={handleAddToCart}
-                extra={
-                  <p className="text-xs text-gray-500">
-                    Bought {product.salesCount} times recently
-                  </p>
-                }
-              />
-            </motion.div>
-          ))}
-        </motion.div>
+        {loadingProducts ? (
+          <ProductGridSkeleton count={8} />
+        ) : (
+          <motion.div
+            variants={containerVariants}
+            initial="hidden"
+            animate="show"
+            className="grid lg:grid-cols-4 grid-cols-2 gap-5 my-10"
+          >
+            {currentProducts.map((product) => (
+              <motion.div key={product.id} variants={itemVariants}>
+                <ProductCard
+                  product={product}
+                  liked={liked.includes(product.id)}
+                  loading={loadingId === product.id}
+                  onLike={handleLike}
+                  onView={(id) => navigate(`/product/${id}`)}
+                  onAddToCart={handleAddToCart}
+                  onPreorder={(product) =>
+                    navigate(
+                      `/preorder?product=${encodeURIComponent(product.name)}`
+                    )
+                  }
+                  extra={
+                    <p className="text-xs text-gray-500">
+                      Bought {product.salesCount} times recently
+                    </p>
+                  }
+                />
+              </motion.div>
+            ))}
+          </motion.div>
+        )}
 
         <div className="flex justify-center mt-10">
           <Pagination
@@ -207,7 +219,7 @@ const RegularSales = () => {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 60 }}
               transition={{ duration: 0.4, ease: 'easeOut' }}
-              className="fixed bottom-6 left-1/2 -translate-x-1/2 bg-[#6eb356] text-white px-5 py-3 rounded-full shadow-lg flex items-center space-x-2 z-50"
+              className="fixed bottom-6 left-1/2 -translate-x-1/2 bg-green-700 text-white px-5 py-3 rounded-full shadow-lg flex items-center space-x-2 z-50"
             >
               <CheckCircle size={18} className="text-white" />
               <span className="font-medium text-sm sm:text-base">{toast}</span>

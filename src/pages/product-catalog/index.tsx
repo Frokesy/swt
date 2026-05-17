@@ -11,11 +11,13 @@ import { set, get } from 'idb-keyval';
 import { useNavigate } from 'react-router-dom';
 import { useCart } from '../../hooks/useCart';
 import { listAllProducts } from '../../lib/products';
+import { ProductGridSkeleton } from '../../components/defaults/Skeleton';
 
 const ProductCatalogue = () => {
   const [liked, setLiked] = useState<string[]>([]);
   const [loadingId, setLoadingId] = useState<string | null>(null);
   const [products, setProducts] = useState<ProductType[]>([]);
+  const [loadingProducts, setLoadingProducts] = useState(true);
   const [toast, setToast] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [selectedType, setSelectedType] = useState<string>('All');
@@ -114,7 +116,14 @@ const ProductCatalogue = () => {
 
   useEffect(() => {
     const fetchProducts = async () => {
-      setProducts(await listAllProducts());
+      try {
+        setLoadingProducts(true);
+        setProducts(await listAllProducts());
+      } catch (error) {
+        console.error('Failed to fetch products:', error);
+      } finally {
+        setLoadingProducts(false);
+      }
     };
 
     fetchProducts();
@@ -169,23 +178,32 @@ const ProductCatalogue = () => {
           </div>
         </div>
 
-        <motion.div
-          initial="hidden"
-          animate="show"
-          className="grid lg:grid-cols-4 grid-cols-2 gap-5 my-10"
-        >
-          {currentProducts.map((product) => (
-            <ProductCard
-              key={product.id}
-              product={product}
-              liked={liked.includes(product.id)}
-              loading={loadingId === product.id}
-              onLike={handleLike}
-              onView={(id) => navigate(`/product/${id}`)}
-              onAddToCart={handleAddToCart}
-            />
-          ))}
-        </motion.div>
+        {loadingProducts ? (
+          <ProductGridSkeleton count={8} />
+        ) : (
+          <motion.div
+            initial="hidden"
+            animate="show"
+            className="grid lg:grid-cols-4 grid-cols-2 gap-5 my-10"
+          >
+            {currentProducts.map((product) => (
+              <ProductCard
+                key={product.id}
+                product={product}
+                liked={liked.includes(product.id)}
+                loading={loadingId === product.id}
+                onLike={handleLike}
+                onView={(id) => navigate(`/product/${id}`)}
+                onAddToCart={handleAddToCart}
+                onPreorder={(product) =>
+                  navigate(
+                    `/preorder?product=${encodeURIComponent(product.name)}`
+                  )
+                }
+              />
+            ))}
+          </motion.div>
+        )}
 
         <div className="flex justify-center mt-10">
           <Pagination
@@ -205,7 +223,7 @@ const ProductCatalogue = () => {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 60 }}
               transition={{ duration: 0.4 }}
-              className="fixed bottom-6 left-1/2 -translate-x-1/2 bg-[#6eb356] text-white px-5 py-3 rounded-full shadow-lg flex items-center space-x-2 z-50"
+              className="fixed bottom-6 left-1/2 -translate-x-1/2 bg-green-700 text-white px-5 py-3 rounded-full shadow-lg flex items-center space-x-2 z-50"
             >
               <CheckCircle size={18} />
               <span className="font-medium text-sm sm:text-base">{toast}</span>

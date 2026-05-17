@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { CheckCircle, X } from 'lucide-react';
 import Header from '../../components/defaults/Header';
@@ -17,6 +18,7 @@ const plunkSecret = import.meta.env.VITE_PLUNK_SECRET;
 const plunkClient = new Plunk(plunkSecret);
 
 const PreOrder = () => {
+  const [searchParams] = useSearchParams();
   const [form, setForm] = useState({
     productName: '',
     description: '',
@@ -126,6 +128,17 @@ const PreOrder = () => {
     };
     checkSession();
   }, []);
+
+  useEffect(() => {
+    const productName = searchParams.get('product');
+    if (!productName) return;
+
+    setForm((prev) => ({
+      ...prev,
+      productName,
+      description: prev.description || 'Requested because this product is out of stock.',
+    }));
+  }, [searchParams]);
 
   return (
     <div>

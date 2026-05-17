@@ -10,6 +10,7 @@ type Props = {
   onLike: (id: string, name?: string) => void;
   onView: (id: string) => void;
   onAddToCart: (id: string, name: string) => void;
+  onPreorder?: (product: ProductType) => void;
   extra?: React.ReactNode;
 };
 
@@ -20,6 +21,7 @@ const ProductCard: React.FC<Props> = ({
   onLike,
   onView,
   onAddToCart,
+  onPreorder,
   extra,
 }) => {
   const [isActive, setIsActive] = useState(false);
@@ -42,6 +44,7 @@ const ProductCard: React.FC<Props> = ({
   }, []);
 
   const showControls = supportsHover ? isActive : true;
+  const inStock = (product.inStock ?? true) && (product.quantity ?? 1) > 0;
 
   return (
     <motion.div
@@ -86,7 +89,7 @@ const ProductCard: React.FC<Props> = ({
                       liked
                         ? 'fill-red-500 text-red-500'
                         : hoveredIcon === 'heart'
-                          ? 'text-[#a4c059]'
+                          ? 'text-green-700'
                           : 'text-gray-600'
                     }`}
                   />
@@ -104,7 +107,7 @@ const ProductCard: React.FC<Props> = ({
                 <Eye
                   size={20}
                   className={`transition-colors duration-300 ${
-                    hoveredIcon === 'eye' ? 'text-[#a4c059]' : 'text-gray-600'
+                    hoveredIcon === 'eye' ? 'text-green-700' : 'text-gray-600'
                   }`}
                 />
               </motion.div>
@@ -128,8 +131,16 @@ const ProductCard: React.FC<Props> = ({
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 30 }}
             transition={{ duration: 0.4 }}
-            onClick={() => onAddToCart(product.id, product.name)}
-            className="bg-[#6eb356] text-white py-2 rounded-lg hover:bg-[#5aa246] font-semibold flex items-center justify-center text-sm sm:text-base"
+            onClick={() =>
+              inStock
+                ? onAddToCart(product.id, product.name)
+                : onPreorder?.(product)
+            }
+            className={`py-2 rounded-lg font-semibold flex items-center justify-center text-sm sm:text-base transition ${
+              inStock
+                ? 'bg-green-700 text-white hover:bg-green-800'
+                : 'bg-amber-600 text-white hover:bg-amber-700'
+            }`}
           >
             {loading ? (
               <motion.div
@@ -137,7 +148,7 @@ const ProductCard: React.FC<Props> = ({
                 transition={{ repeat: Infinity, duration: 0.8 }}
               />
             ) : (
-              'Add to Cart'
+              inStock ? 'Add to Cart' : 'Preorder'
             )}
           </motion.button>
         )}

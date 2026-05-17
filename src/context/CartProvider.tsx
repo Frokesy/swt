@@ -37,16 +37,26 @@ export const CartProvider = ({ children }: CartProviderProps) => {
   };
 
   const addToCart = async (product: ProductType) => {
+    const stockQuantity = product.quantity ?? 0;
+    if (!(product.inStock ?? true) || stockQuantity <= 0) return;
+
     const existingCart: ProductType[] = (await get('cartItems')) || [];
     const existingItem = existingCart.find((item) => item.id === product.id);
 
     const updatedCart = existingItem
       ? existingCart.map((item) =>
           item.id === product.id
-            ? { ...item, quantity: (item.quantity ?? 1) + 1 }
+            ? {
+                ...item,
+                quantity: Math.min(
+                  stockQuantity,
+                  (item.quantity ?? 1) + 1
+                ),
+                stockQuantity,
+              }
             : item
         )
-      : [...existingCart, { ...product, quantity: 1 }];
+      : [...existingCart, { ...product, quantity: 1, stockQuantity }];
 
     await syncCart(updatedCart);
   };
@@ -58,7 +68,15 @@ export const CartProvider = ({ children }: CartProviderProps) => {
 
   const increment = async (id: string) => {
     const updated = cartItems.map((item) =>
-      item.id === id ? { ...item, quantity: (item.quantity ?? 1) + 1 } : item
+      item.id === id
+        ? {
+            ...item,
+            quantity: Math.min(
+              item.stockQuantity ?? item.quantity ?? 1,
+              (item.quantity ?? 1) + 1
+            ),
+          }
+        : item
     );
     await syncCart(updated);
   };

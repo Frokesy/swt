@@ -3,7 +3,8 @@ import { useEffect, useState } from 'react';
 import { databases } from '../../../lib/appwrite';
 import { Query } from 'appwrite';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Package, Loader2 } from 'lucide-react';
+import { Package } from 'lucide-react';
+import { PageBlockSkeleton } from '../../defaults/Skeleton';
 
 const DATABASE_ID = import.meta.env.VITE_DB_ID;
 const ORDERS_COLLECTION_ID = 'orders';
@@ -36,12 +37,7 @@ const Orders = ({ userId }: OrdersProps) => {
   }, [userId]);
 
   if (loading) {
-    return (
-      <div className="flex justify-center items-center min-h-[200px] text-gray-500">
-        <Loader2 className="animate-spin mr-2" size={18} />
-        Loading your orders...
-      </div>
-    );
+    return <PageBlockSkeleton />;
   }
 
   if (!orders.length) {

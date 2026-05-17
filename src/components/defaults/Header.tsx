@@ -6,6 +6,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { useCart } from '../../hooks/useCart';
 import { type ProductType } from '../data/products';
 import { listAllProducts } from '../../lib/products';
+import { Skeleton } from './Skeleton';
 
 const navItems = [
   { id: 1, label: 'Home', link: '/' },
@@ -156,7 +157,7 @@ const Header = () => {
             <button
               type="button"
               onClick={handleSearchToggle}
-              className="bg-[#6eb356] p-3 w-[10%] flex items-center justify-center cursor-pointer"
+              className="bg-green-700 p-3 w-[10%] flex items-center justify-center cursor-pointer"
               aria-label="Toggle product search"
             >
               <Search color="#fff" />
@@ -169,7 +170,7 @@ const Header = () => {
               onClick={handleSearchToggle}
             />
             <NavLink to="/cart">
-              <div className="bg-[#6eb356] p-2 relative rounded-full cursor-pointer">
+              <div className="bg-green-700 p-2 relative rounded-full cursor-pointer">
                 <ShoppingBag color="#fff" />
                 <AnimatePresence>
                   {cartCount > 0 && (
@@ -192,7 +193,7 @@ const Header = () => {
               </div>
             </NavLink>
             <NavLink to="/favorites">
-              <div className="bg-[#6eb356] p-2 relative rounded-full cursor-pointer">
+              <div className="bg-green-700 p-2 relative rounded-full cursor-pointer">
                 <Heart color="#fff" />
                 <AnimatePresence>
                   {likedCount > 0 && (
@@ -215,7 +216,7 @@ const Header = () => {
               </div>
             </NavLink>
             <NavLink to="/account">
-              <div className="bg-[#6eb356] p-2 rounded-full cursor-pointer">
+              <div className="bg-green-700 p-2 rounded-full cursor-pointer">
                 <UserIcon color="#fff" />
               </div>
             </NavLink>
@@ -267,9 +268,11 @@ const Header = () => {
 
               <div className="max-h-[360px] overflow-y-auto">
                 {searchLoading && (
-                  <p className="p-4 text-sm text-gray-500">
-                    Loading products...
-                  </p>
+                  <div className="space-y-3 p-4">
+                    <Skeleton className="h-14 w-full rounded-lg" />
+                    <Skeleton className="h-14 w-full rounded-lg" />
+                    <Skeleton className="h-14 w-full rounded-lg" />
+                  </div>
                 )}
 
                 {!searchLoading && searchError && (

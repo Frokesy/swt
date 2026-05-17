@@ -8,6 +8,7 @@ import TopNav from '../../components/defaults/TopNav';
 import Header from '../../components/defaults/Header';
 import { useCart } from '../../hooks/useCart';
 import { getProductById, listAllProducts } from '../../lib/products';
+import { Skeleton } from '../../components/defaults/Skeleton';
 
 const ProductDetailsPage = () => {
   const { id } = useParams();
@@ -81,6 +82,11 @@ const ProductDetailsPage = () => {
   }, [products, id]);
 
   const handleAddToCart = async (id: string, name: string) => {
+    if (!inStock && product) {
+      navigate(`/preorder?product=${encodeURIComponent(product.name)}`);
+      return;
+    }
+
     setLoadingId(id);
     try {
       const productToAdd = products.find((p) => p.id === id) ?? product;
@@ -116,8 +122,31 @@ const ProductDetailsPage = () => {
 
   if (productLoading) {
     return (
-      <div className="flex flex-col items-center justify-center h-screen text-center">
-        <p className="text-gray-500">Loading product...</p>
+      <div className="min-h-screen bg-gray-50">
+        <Ad />
+        <Header />
+        <TopNav />
+        <div className="w-[92%] mx-auto lg:w-[80%] xl:w-[70%] mt-10 mb-20">
+          <Skeleton className="h-6 w-36 mb-6" />
+          <div className="flex flex-col lg:flex-row bg-white rounded-2xl shadow-sm overflow-hidden">
+            <div className="lg:w-1/2 p-6 space-y-4">
+              <Skeleton className="h-[350px] lg:h-[500px] w-full rounded-xl" />
+              <div className="flex gap-3">
+                <Skeleton className="w-20 h-20 rounded-lg" />
+                <Skeleton className="w-20 h-20 rounded-lg" />
+                <Skeleton className="w-20 h-20 rounded-lg" />
+              </div>
+            </div>
+            <div className="lg:w-1/2 p-6 lg:p-10 space-y-5">
+              <Skeleton className="h-9 w-3/4" />
+              <Skeleton className="h-7 w-28" />
+              <Skeleton className="h-5 w-24" />
+              <Skeleton className="h-24 w-full" />
+              <Skeleton className="h-28 w-full" />
+              <Skeleton className="h-12 w-full rounded-full" />
+            </div>
+          </div>
+        </div>
       </div>
     );
   }
@@ -266,7 +295,11 @@ const ProductDetailsPage = () => {
               whileTap={{ scale: 0.96 }}
               onClick={() => handleAddToCart(product.id, product.name)}
               disabled={loadingId ? true : false}
-              className="mt-10 w-full bg-green-700 hover:bg-green-800 text-white py-3 rounded-full font-semibold shadow-md transition-all"
+              className={`mt-10 w-full text-white py-3 rounded-full font-semibold shadow-md transition-all ${
+                inStock
+                  ? 'bg-green-700 hover:bg-green-800'
+                  : 'bg-amber-600 hover:bg-amber-700'
+              }`}
             >
               {loadingId ? (
                 <motion.div
@@ -274,7 +307,7 @@ const ProductDetailsPage = () => {
                   transition={{ repeat: Infinity, duration: 0.8 }}
                 />
               ) : (
-                'Add to Cart'
+                inStock ? 'Add to Cart' : 'Preorder'
               )}
             </motion.button>
           </div>
@@ -287,7 +320,7 @@ const ProductDetailsPage = () => {
           initial={{ opacity: 0, y: 50 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: 50 }}
-          className="fixed bottom-6 left-1/2 -translate-x-1/2 bg-[#6eb356] text-white px-5 py-3 rounded-full shadow-lg flex items-center space-x-2 z-50"
+          className="fixed bottom-6 left-1/2 -translate-x-1/2 bg-green-700 text-white px-5 py-3 rounded-full shadow-lg flex items-center space-x-2 z-50"
         >
           <CheckCircle size={18} />
           <span className="font-medium text-sm sm:text-base">{toast}</span>

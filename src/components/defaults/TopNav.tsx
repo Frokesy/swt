@@ -10,7 +10,7 @@ const TopNav = () => {
     { id: 6, label: "Delivery Information", link: "/delivery-info" },
   ];
   return (
-    <div className="w-[100%] bg-[#6eb356] lg:flex hidden text-[#fff] py-3 text-center">
+    <div className="w-[100%] bg-green-700 lg:flex hidden text-[#fff] py-3 text-center">
       <div className="lg:w-[60%] w-[90%] mx-auto flex items-center space-x-10">
         {navItems.map((item) => (
           <div

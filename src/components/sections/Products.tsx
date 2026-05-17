@@ -7,10 +7,12 @@ import { useNavigate } from 'react-router-dom';
 import Toast from '../defaults/Toast';
 import { useCart } from '../../hooks/useCart';
 import { listAllProducts } from '../../lib/products';
+import { ProductGridSkeleton, Skeleton } from '../defaults/Skeleton';
 
 const Products = () => {
   const [liked, setLiked] = useState<string[]>([]);
   const [products, setProducts] = useState<ProductType[]>([]);
+  const [loadingProducts, setLoadingProducts] = useState(true);
   const [loadingId, setLoadingId] = useState<string | null>(null);
   const [toast, setToast] = useState<string | null>(null);
   const { addToCart } = useCart();
@@ -96,7 +98,14 @@ const Products = () => {
 
   useEffect(() => {
     const fetchProducts = async () => {
-      setProducts(await listAllProducts());
+      try {
+        setLoadingProducts(true);
+        setProducts(await listAllProducts());
+      } catch (error) {
+        console.error('Failed to fetch products:', error);
+      } finally {
+        setLoadingProducts(false);
+      }
     };
 
     fetchProducts();
@@ -104,6 +113,13 @@ const Products = () => {
 
   return (
     <div className="lg:w-[60%] w-[90%] mx-auto my-10 space-y-14">
+      {loadingProducts && (
+        <div className="space-y-6">
+          <Skeleton className="h-7 w-44" />
+          <ProductGridSkeleton count={8} />
+        </div>
+      )}
+
       {displayedCategories.map((category) => {
         const categoryProducts = products.filter(
           (p) => p.category === category
@@ -128,6 +144,11 @@ const Products = () => {
                     onLike={handleLike}
                     onView={(id) => navigate(`/product/${id}`)}
                     onAddToCart={handleAddToCart}
+                    onPreorder={(product) =>
+                      navigate(
+                        `/preorder?product=${encodeURIComponent(product.name)}`
+                      )
+                    }
                   />
                 </motion.div>
               ))}
@@ -142,7 +163,7 @@ const Products = () => {
           <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            className="bg-[#6eb356] text-white py-3 px-8 rounded-lg hover:bg-[#5aa246] transition-colors ease-in-out duration-300 font-semibold"
+            className="bg-green-700 text-white py-3 px-8 rounded-lg hover:bg-green-800 transition-colors ease-in-out duration-300 font-semibold"
             onClick={() => navigate('/product-catalogue')}
           >
             Explore All Products

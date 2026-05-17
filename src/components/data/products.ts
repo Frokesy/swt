@@ -6,6 +6,7 @@ export interface ProductType {
   category: string;
   type: string;
   quantity?: number;
+  stockQuantity?: number;
   desc?: string;
   images?: string[];
   liked?: boolean;

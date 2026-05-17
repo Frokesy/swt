@@ -13,6 +13,7 @@ import Preorders from '../../components/sections/account/Preorders';
 import Orders from '../../components/sections/account/Orders';
 import ProfileInfo from '../../components/sections/account/ProfileInfo';
 import { Query } from 'appwrite';
+import { PageBlockSkeleton, Skeleton } from '../../components/defaults/Skeleton';
 
 const DATABASE_ID = import.meta.env.VITE_DB_ID;
 
@@ -56,8 +57,19 @@ const MyAccount = () => {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center min-h-[60vh] text-gray-500">
-        Loading your account...
+      <div>
+        <Ad />
+        <Header />
+        <TopNav />
+        <div className="w-[90%] lg:w-[60%] mx-auto my-10 space-y-8">
+          <Skeleton className="h-8 w-44" />
+          <div className="flex gap-3">
+            <Skeleton className="h-10 w-28" />
+            <Skeleton className="h-10 w-28" />
+            <Skeleton className="h-10 w-28" />
+          </div>
+          <PageBlockSkeleton />
+        </div>
       </div>
     );
   }

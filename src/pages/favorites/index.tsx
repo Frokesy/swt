@@ -81,6 +81,11 @@ const FavoritesPage = () => {
                 onLike={() => handleLike(product.id)}
                 onView={(id) => navigate(`/product/${id}`)}
                 onAddToCart={handleAddToCart}
+                onPreorder={(product) =>
+                  navigate(
+                    `/preorder?product=${encodeURIComponent(product.name)}`
+                  )
+                }
               />
             ))}
           </div>

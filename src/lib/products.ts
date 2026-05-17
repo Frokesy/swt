@@ -33,7 +33,7 @@ export const mapProductDocument = (doc: any): ProductType => ({
   desc: doc.desc,
   images: parseImages(doc.images),
   liked: doc.liked,
-  inStock: doc.inStock,
+  inStock: (doc.inStock ?? true) && Number(doc.quantity ?? 1) > 0,
   salesCount: doc.salesCount,
   sku: doc.sku,
   weight: doc.weight,

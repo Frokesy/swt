@@ -3,6 +3,7 @@ import { databases } from '../../../lib/appwrite';
 import { Query } from 'appwrite';
 import { motion } from 'framer-motion';
 import { Package } from 'lucide-react';
+import { PageBlockSkeleton } from '../../defaults/Skeleton';
 
 const DATABASE_ID = import.meta.env.VITE_DB_ID;
 
@@ -42,7 +43,7 @@ const Preorders = ({ userId }: { userId: string }) => {
   }, [userId]);
 
   if (loading) {
-    return <p className="text-gray-500">Loading preorders...</p>;
+    return <PageBlockSkeleton />;
   }
 
   if (preorders.length === 0) {
